@@ -13,13 +13,13 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.iti.weatherwatch.ui.dashboard.DashboardFragment"
+        android:name="com.iti.weatherwatch.ui.favorites.FavoritesFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_favorites" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.iti.weatherwatch.ui.notifications.NotificationsFragment"
+        android:name="com.iti.weatherwatch.ui.alerts.AlertsFragment"
         android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_alerts" />
 </navigation>
