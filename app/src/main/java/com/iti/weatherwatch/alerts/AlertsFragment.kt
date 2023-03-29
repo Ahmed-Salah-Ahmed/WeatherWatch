@@ -1,4 +1,4 @@
-package com.iti.weatherwatch.ui.alerts
+package com.iti.weatherwatch.alerts
 
 import android.os.Bundle
 import android.view.*

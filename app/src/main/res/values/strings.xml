@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">WeatherWatch</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_dashboard">favorites</string>
+    <string name="title_notifications">ِAlerts</string>
+    <string name="pressure">Pressure</string>
+    <string name="Humidity">Humidity</string>
+    <string name="wind_speed">Wind speed</string>
+    <string name="next_days">Next Days</string>
 </resources>
