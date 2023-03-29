@@ -1,4 +1,4 @@
-package com.iti.weatherwatch.home
+package com.iti.weatherwatch.home.view
 
 import android.os.Bundle
 import android.view.*
@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iti.weatherwatch.databinding.FragmentHomeBinding
+import com.iti.weatherwatch.home.viewmodel.HomeViewModel
 
 class HomeFragment : Fragment() {
 

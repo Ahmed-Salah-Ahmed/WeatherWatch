@@ -1,4 +1,4 @@
-package com.iti.weatherwatch.network
+package com.iti.weatherwatch.datasource.remote
 
 import com.iti.weatherwatch.model.OpenWeatherApi
 import retrofit2.Response

@@ -1,15 +1,16 @@
-package com.iti.weatherwatch.alerts
+package com.iti.weatherwatch.favorites.view
 
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.iti.weatherwatch.databinding.FragmentAlertsBinding
+import com.iti.weatherwatch.databinding.FragmentFavoritesBinding
+import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModel
 
-class AlertsFragment : Fragment() {
+class FavoritesFragment : Fragment() {
 
-    private var _binding: FragmentAlertsBinding? = null
+    private var _binding: FragmentFavoritesBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -20,14 +21,14 @@ class AlertsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(AlertsViewModel::class.java)
+        val dashboardViewModel =
+            ViewModelProvider(this).get(FavoritesViewModel::class.java)
 
-        _binding = FragmentAlertsBinding.inflate(inflater, container, false)
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textDashboard
+        dashboardViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

@@ -1,21 +1,21 @@
-package com.iti.weatherwatch.home
+package com.iti.weatherwatch.home.view
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.iti.weatherwatch.R
-import com.iti.weatherwatch.databinding.TempPerDayCardBinding
+import com.iti.weatherwatch.databinding.TempPerTimeCardBinding
 
-class TempPerDayAdapter(private val context: Context) :
-    RecyclerView.Adapter<TempPerDayAdapter.ViewHolder>() {
+class TempPerTimeAdapter(private val context: Context) :
+    RecyclerView.Adapter<TempPerTimeAdapter.ViewHolder>() {
 
-    class ViewHolder(val binding: TempPerDayCardBinding) :
+    class ViewHolder(val binding: TempPerTimeCardBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            TempPerDayCardBinding.inflate(
+            TempPerTimeCardBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -24,13 +24,13 @@ class TempPerDayAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.imageCardDayIcon.setImageResource(R.drawable.clouds)
-        holder.binding.textCardDay.text = "Monday"
-        holder.binding.textCardDayTempDescription.text = "Sunny"
-        holder.binding.textCardDayTemp.text = "32*c"
+        holder.binding.imageCardTempIcon.setImageResource(R.drawable.clouds)
+        holder.binding.textCardTemp.text = "32*C"
+        holder.binding.textCardTime.text = "12:00"
     }
 
     override fun getItemCount(): Int {
-        return 7
+        return 24
     }
+
 }

@@ -1,4 +1,4 @@
-package com.iti.weatherwatch.home
+package com.iti.weatherwatch.home.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
