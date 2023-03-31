@@ -6,16 +6,18 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val appId = "7d691d845ca1e4b20b9e90fd19b05f1a"
-private const val _exclude = "minutely"
+private const val excludeMinutely = "minutely"
+private const val defaultUnits = "metric"
+private const val defaultLanguage = "en"
 
 interface RetrofitService {
     @GET("onecall")
     suspend fun getCurrentWeather(
-        @Query("lat") lat: Double,
-        @Query("lon") lon: Double,
-        @Query("lang") language: String = "en",
-        @Query("units") units: String = "imperial",
-        @Query("exclude") exclude: String = _exclude,
-        @Query("appid") appid: String = appId
+        @Query("lat") lat: String,
+        @Query("lon") lon: String,
+        @Query("exclude") exclude: String = excludeMinutely,
+        @Query("units") units: String = defaultUnits,
+        @Query("lang") lang: String = defaultLanguage,
+        @Query("appid") app_id: String = appId
     ): Response<OpenWeatherApi>
 }

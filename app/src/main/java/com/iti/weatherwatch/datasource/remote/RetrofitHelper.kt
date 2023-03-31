@@ -8,19 +8,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitHelper : RemoteSource {
     private const val baseUrl = "https://api.openweathermap.org/data/2.5/"
 
-    private val retrofit by lazy {
-        Retrofit.Builder().baseUrl(baseUrl)
+    private val retrofitService by lazy {
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    private val retrofitService: RetrofitService by lazy {
-        retrofit.create(RetrofitService::class.java)
+            .create(RetrofitService::class.java)
     }
 
     override suspend fun getCurrentWeather(
-        lat: Double,
-        long: Double,
+        lat: String,
+        long: String,
         language: String,
         units: String
     ): Response<OpenWeatherApi> =

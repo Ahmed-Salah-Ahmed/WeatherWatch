@@ -5,9 +5,9 @@ import retrofit2.Response
 
 interface RemoteSource {
     suspend fun getCurrentWeather(
-        lat: Double,
-        long: Double,
-        language: String = "en",
-        units: String = "imperial",
+        lat: String,
+        long: String,
+        language: String,
+        units: String
     ): Response<OpenWeatherApi>
 }

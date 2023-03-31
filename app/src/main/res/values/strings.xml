@@ -7,4 +7,14 @@
     <string name="Humidity">Humidity</string>
     <string name="wind_speed">Wind speed</string>
     <string name="next_days">Next Days</string>
+    <string name="shared_pref">com.iti.weatherwatch.PREFERENCE_FILE_KEY</string>
+    <string name="lat">lat</string>
+    <string name="location">location</string>
+    <string name="lon">lon</string>
+    <string name="timeZone">timeZone</string>
+    <string name="initial_setting">Initial Settings</string>
+    <string name="text_location">Location:</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="btn_ok">OK</string>
 </resources>
