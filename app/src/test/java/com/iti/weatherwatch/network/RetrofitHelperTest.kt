@@ -16,12 +16,12 @@ class RetrofitHelperTest {
 
     @Test
     fun getCurrentWeather_latAndLong_returnOpenWeatherApiModelHasValue() {
-        val lat = 31.19264
-        val long = 29.9060892
+        val lat = "31.19264"
+        val long = "29.9060892"
         val retrofitHelper = RetrofitHelper
         var result: Response<OpenWeatherApi>?
         runBlocking {
-            result = retrofitHelper.getCurrentWeather(lat, long)
+            result = retrofitHelper.getCurrentWeather(lat, long, "en", "metric")
             assertNotNull(result?.body())
         }
     }
