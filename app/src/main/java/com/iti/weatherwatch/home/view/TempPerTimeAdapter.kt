@@ -4,11 +4,15 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.TempPerTimeCardBinding
+import com.iti.weatherwatch.model.Hourly
+import com.iti.weatherwatch.util.convertLongToTime
+import com.iti.weatherwatch.util.getIcon
 
 class TempPerTimeAdapter(private val context: Context) :
     RecyclerView.Adapter<TempPerTimeAdapter.ViewHolder>() {
+
+    var hourly: List<Hourly> = emptyList()
 
     class ViewHolder(val binding: TempPerTimeCardBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -24,13 +28,14 @@ class TempPerTimeAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.imageCardTempIcon.setImageResource(R.drawable.clouds)
-        holder.binding.textCardTemp.text = "32*C"
-        holder.binding.textCardTime.text = "12:00"
+        val hour = hourly[position + 1]
+
+        holder.binding.imageCardTempIcon.setImageResource(getIcon(hour.weather[0].icon))
+        holder.binding.textCardTemp.text = "${hour.temp}"
+        holder.binding.textCardTime.text = convertLongToTime(hour.dt)
     }
 
     override fun getItemCount(): Int {
-        return 24
+        return hourly.size - 1
     }
-
 }
