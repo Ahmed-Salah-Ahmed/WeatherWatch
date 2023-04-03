@@ -1,13 +1,14 @@
 package com.iti.weatherwatch.datasource
 
 import android.app.Application
-import androidx.lifecycle.LiveData
 import com.iti.weatherwatch.datasource.local.*
 import com.iti.weatherwatch.datasource.remote.RemoteSource
 import com.iti.weatherwatch.datasource.remote.RetrofitHelper
 import com.iti.weatherwatch.model.OpenWeatherApi
+import com.iti.weatherwatch.model.WeatherAlert
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 
 class WeatherRepository(
     private val weatherRemoteDataSource: RemoteSource,
@@ -31,24 +32,24 @@ class WeatherRepository(
         }
     }
 
-    override suspend fun updateWeatherFromRemoteDataSource(
+    override suspend fun insertFavoriteWeatherFromRemoteToLocal(
         lat: String,
         long: String,
         language: String,
         units: String
-    ): OpenWeatherApi {
+    ) {
         val remoteWeather = weatherRemoteDataSource.getCurrentWeather(lat, long, language, units)
         if (remoteWeather.isSuccessful) {
             remoteWeather.body()?.let {
-                weatherLocalDataSource.updateCurrentWeather(it)
+                it.isFavorite = true
+                weatherLocalDataSource.insertCurrentWeather(it)
             }
-            return remoteWeather.body()!!
         } else {
             throw Exception("${remoteWeather.errorBody()}")
         }
     }
 
-    override suspend fun insertWeatherFromRemoteDataSource(
+    override suspend fun insertCurrentWeatherFromRemoteToLocal(
         lat: String,
         long: String,
         language: String,
@@ -57,6 +58,8 @@ class WeatherRepository(
         val remoteWeather = weatherRemoteDataSource.getCurrentWeather(lat, long, language, units)
         return if (remoteWeather.isSuccessful) {
             remoteWeather.body()?.let {
+                deleteWeathersFromLocalDataSource()
+                it.isFavorite = false
                 weatherLocalDataSource.insertCurrentWeather(it)
             }
             remoteWeather.body()!!
@@ -65,13 +68,60 @@ class WeatherRepository(
         }
     }
 
-    override fun getWeatherFromLocalDataSource(
-        timeZone: String
-    ): LiveData<OpenWeatherApi> {
-        return weatherLocalDataSource.getCurrentWeather(timeZone)
+    override fun getCurrentWeatherFromLocalDataSource(): OpenWeatherApi {
+        return weatherLocalDataSource.getCurrentWeather()
     }
 
-    override suspend fun deleteWeatherFromLocalDataSource(timeZone: String) {
-        weatherLocalDataSource.deleteWeather(timeZone)
+    override suspend fun deleteWeathersFromLocalDataSource() {
+        weatherLocalDataSource.deleteWeathers()
+    }
+
+    override fun getFavoritesWeatherFromLocalDataSource(): Flow<List<OpenWeatherApi>> {
+        return weatherLocalDataSource.getFavoritesWeather()
+    }
+
+    override suspend fun deleteFavoriteWeather(id: Int) {
+        weatherLocalDataSource.deleteFavoriteWeather(id)
+    }
+
+    override fun getFavoriteWeather(id: Int): OpenWeatherApi {
+        return weatherLocalDataSource.getFavoriteWeather(id)
+    }
+
+    override suspend fun updateWeather(weather: OpenWeatherApi) {
+        weatherLocalDataSource.updateWeather(weather)
+    }
+
+    override suspend fun updateFavoriteWeather(
+        latitude: String,
+        longitude: String,
+        units: String,
+        language: String,
+        id: Int
+    ): OpenWeatherApi {
+        val response =
+            weatherRemoteDataSource.getCurrentWeather(latitude, longitude, language, units)
+        if (response.isSuccessful) {
+            response.body()?.let {
+                it.id = id
+                it.isFavorite = true
+                updateWeather(it)
+            }
+            return getFavoriteWeather(id)
+        } else {
+            throw Exception("${response.errorBody()}")
+        }
+    }
+
+    override suspend fun insertAlert(alert: WeatherAlert) {
+        weatherLocalDataSource.insertAlert(alert)
+    }
+
+    override fun getAlertsList(): Flow<List<WeatherAlert>> {
+        return weatherLocalDataSource.getAlertsList()
+    }
+
+    override suspend fun deleteAlert(id: Int) {
+        weatherLocalDataSource.deleteAlert(id)
     }
 }

@@ -2,16 +2,18 @@ package com.iti.weatherwatch.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import com.iti.weatherwatch.R
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun getIcon(imageString: String): Int {
-    var imageInInteger: Int
+    val imageInInteger: Int
     when (imageString) {
         "01d" -> imageInInteger = R.drawable.icon_01d
         "01n" -> imageInInteger = R.drawable.icon_01n
@@ -36,19 +38,19 @@ fun getIcon(imageString: String): Int {
     return imageInInteger
 }
 
-fun convertLongToTime(time: Long): String {
+fun convertLongToTime(time: Long, language: String): String {
     val date = Date(TimeUnit.SECONDS.toMillis(time))
-    val format = SimpleDateFormat("h:mm a")
+    val format = SimpleDateFormat("h:mm a", Locale(language))
     return format.format(date)
 }
 
-fun convertCalenderToDayString(calendar: Calendar): String {
-    return calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH)
+fun convertCalenderToDayString(calendar: Calendar, language: String): String {
+    return calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale(language))
 }
 
-fun convertCalenderToDayDate(calendar: Calendar): String {
-    val date = Date(calendar.timeInMillis)
-    val format = SimpleDateFormat("d MMM, yyyy")
+fun convertLongToDayDate(time: Long, language: String): String {
+    val date = Date(time)
+    val format = SimpleDateFormat("d MMM, yyyy", Locale(language))
     return format.format(date)
 }
 
@@ -117,4 +119,25 @@ fun isOnline(context: Context): Boolean {
     return false
 }
 
-fun String.fullTrim() = trim().replace("\uFEFF", "")
+fun getCurrentLocale(context: Context): Locale? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        context.resources.configuration.locales[0]
+    } else {
+        context.resources.configuration.locale
+    }
+}
+
+fun getCityText(context: Context, lat: Double, lon: Double, language: String): String {
+    var city = "Unknown!"
+    val geocoder = Geocoder(context, Locale(language))
+    try {
+        val addresses = geocoder.getFromLocation(lat, lon, 1)
+        if (addresses!!.isNotEmpty()) {
+            city = "${addresses[0].adminArea}, ${addresses[0].countryName}"
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+//        val knownName = addresses[0].featureName // elglaa
+    return city
+}

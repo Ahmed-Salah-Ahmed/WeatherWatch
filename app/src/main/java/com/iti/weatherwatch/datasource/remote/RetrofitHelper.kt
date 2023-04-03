@@ -22,6 +22,6 @@ object RetrofitHelper : RemoteSource {
         language: String,
         units: String
     ): Response<OpenWeatherApi> =
-        retrofitService.getCurrentWeather(lat, long, language, units)
+        retrofitService.getCurrentWeather(lat, long, lang = language, units = units)
 
 }

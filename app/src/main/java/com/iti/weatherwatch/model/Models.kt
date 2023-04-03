@@ -7,10 +7,11 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "weather")
 data class OpenWeatherApi(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    var isFavorite: Boolean = false,
     @SerializedName("lat") var lat: Double,
     @SerializedName("lon") var lon: Double,
-    @PrimaryKey
-    @NonNull
     @SerializedName("timezone") var timezone: String,
     @SerializedName("timezone_offset") var timezoneOffset: Int,
     @SerializedName("current") var current: Current,
@@ -115,4 +116,15 @@ data class Alerts(
     @SerializedName("description") var description: String? = null,
     @SerializedName("tags") var tags: List<String>
 
+)
+
+@Entity(tableName = "alert")
+data class WeatherAlert(
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    val id: Int? = null,
+    var startTime: Long,
+    var endTime: Long,
+    var startDate: Long,
+    var endDate: Long
 )

@@ -1,33 +1,45 @@
 package com.iti.weatherwatch.home.view
 
-import android.location.Address
-import android.location.Geocoder
+import android.content.IntentFilter
+import android.graphics.Color
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.*
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.iti.weatherwatch.R
+import com.iti.weatherwatch.broadcastreceiver.ConnectivityReceiver
 import com.iti.weatherwatch.databinding.FragmentHomeBinding
+import com.iti.weatherwatch.datasource.MyLocationProvider
 import com.iti.weatherwatch.datasource.WeatherRepository
 import com.iti.weatherwatch.home.viewmodel.HomeViewModel
+import com.iti.weatherwatch.home.viewmodel.HomeViewModelFactory
 import com.iti.weatherwatch.model.*
 import com.iti.weatherwatch.util.*
-import com.iti.weatherwatch.viewmodel.HomeViewModelFactory
 import java.util.*
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListener {
 
     private var _binding: FragmentHomeBinding? = null
     private lateinit var tempPerDayAdapter: TempPerDayAdapter
     private lateinit var tempPerTimeAdapter: TempPerTimeAdapter
+    private lateinit var windSpeedUnit: String
+    private lateinit var temperatureUnit: String
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var language: String = "en"
+    private var units: String = "metric"
+    private var flagNoConnection: Boolean = false
 
     private val viewModel: HomeViewModel by viewModels {
-        HomeViewModelFactory(WeatherRepository.getRepository(requireActivity().application))
+        HomeViewModelFactory(
+            WeatherRepository.getRepository(requireActivity().application),
+            MyLocationProvider(this)
+        )
     }
 
     // This property is only valid between onCreateView and
@@ -40,134 +52,212 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-//        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ConnectivityReceiver.connectivityReceiverListener = this
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (isOnline(requireContext())) {
+        requireContext().registerReceiver(
+            ConnectivityReceiver(),
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
+
+        if (!flagNoConnection) {
             if (isSharedPreferencesLocationAndTimeZoneNull(requireContext())) {
                 if (!isSharedPreferencesLatAndLongNull(requireContext())) {
-                    latitude =
-                        getSharedPreferences(requireContext()).getFloat(
-                            getString(R.string.lat),
-                            0.0f
-                        ).toDouble()
-                    longitude =
-                        getSharedPreferences(requireContext()).getFloat(
-                            getString(R.string.lon),
-                            0.0f
-                        ).toDouble()
-                    viewModel.insertData("$latitude", "$longitude")
-//                    viewModel.getDataFromDatabase(result.timezone)
-//                    updateSharedPreferences(
-//                        requireContext(),
-//                        result.lat!!,
-//                        result.lon!!,
-//                getCityText(result.lat!!, result.lon!!),
-////                        result.timezone,
-//                        result.timezone
-//                    )
+                    setValuesFromSharedPreferences()
+                    viewModel.getDataFromRemoteToLocal("$latitude", "$longitude", language, units)
+                } else if (getIsMap()) {
+                    Navigation.findNavController(view)
+                        .navigate(R.id.action_navigation_home_to_mapsFragment)
+                } else {
+                    //dialog to get fresh location
+                    val location = MyLocationProvider(this)
+                    if (location.checkPermission() && location.isLocationEnabled()) {
+                        viewModel.getFreshLocation()
+                    } else {
+                        binding.cardLocation.visibility = View.VISIBLE
+                        if (!location.checkPermission()) {
+                            binding.textDialog.text = getString(R.string.location_permission)
+                        } else if (!location.isLocationEnabled()) {
+                            binding.textDialog.text = getString(R.string.location_enabled)
+                        }
+                        binding.btnEnable.setOnClickListener {
+                            viewModel.getFreshLocation()
+                        }
+                    }
+
+                    viewModel.observeLocation().observe(viewLifecycleOwner) {
+                        if (it[0] != 0.0 && it[1] != 0.0) {
+                            latitude = it[0]
+                            longitude = it[1]
+                            val local = getCurrentLocale(requireContext())
+                            language = getSharedPreferences(requireContext()).getString(
+                                getString(R.string.languageSetting), local?.language
+                            )!!
+                            units = getSharedPreferences(requireContext()).getString(
+                                getString(R.string.unitsSetting),
+                                "metric"
+                            )!!
+                            viewModel.getDataFromRemoteToLocal(
+                                "$latitude",
+                                "$longitude",
+                                language,
+                                units
+                            )
+                        }
+                    }
                 }
             } else {
-                latitude =
-                    getSharedPreferences(requireContext()).getFloat(
-                        getString(R.string.lat),
-                        0.0f
-                    ).toDouble()
-                longitude =
-                    getSharedPreferences(requireContext()).getFloat(
-                        getString(R.string.lon),
-                        0.0f
-                    ).toDouble()
-                Log.i("ziny", "onViewCreated: $latitude, $longitude")
-                viewModel.updateData("$latitude", "$longitude")
-            }
-        } else {
-            if (!isSharedPreferencesLocationAndTimeZoneNull(requireContext())) {
-                viewModel.getDataFromDatabase(
-                    getSharedPreferences(requireContext()).getString(
-                        getString(R.string.timeZone),
-                        ""
-                    ) ?: ""
-                )
+                setValuesFromSharedPreferences()
+                viewModel.getDataFromRemoteToLocal("$latitude", "$longitude", language, units)
             }
         }
+
+        //tempPerHourAdapter
+        initTimeRecyclerView()
+
+        //tempPerDayAdapter
+        initDayRecyclerView()
 
         viewModel.openWeatherAPI.observe(viewLifecycleOwner) {
             updateSharedPreferences(
                 requireContext(),
                 it.lat,
                 it.lon,
-                getCityText(it.lat, it.lon),
-                //                it.timezone,
+                getCityText(requireContext(), it.lat, it.lon, language),
                 it.timezone
             )
+            setUnitSetting(units)
             setData(it)
-            fetchTempPerTimeRecycler(it.hourly as ArrayList<Hourly>)
-            fetchTempPerDayRecycler(it.daily as ArrayList<Daily>)
+            fetchTempPerTimeRecycler(it.hourly as ArrayList<Hourly>, temperatureUnit)
+            fetchTempPerDayRecycler(it.daily as ArrayList<Daily>, temperatureUnit)
         }
 
-        //tempPerTimeAdapter
-        val tempPerTimeLinearLayoutManager = LinearLayoutManager(HomeFragment().context)
-        tempPerTimeLinearLayoutManager.orientation = RecyclerView.HORIZONTAL
-        tempPerTimeAdapter = TempPerTimeAdapter(this.requireContext())
-        binding.recyclerViewTempPerTime.layoutManager = tempPerTimeLinearLayoutManager
-        binding.recyclerViewTempPerTime.adapter = tempPerTimeAdapter
-
-        //tempPerDayAdapter
-        val tempPerDayLinearLayoutManager = LinearLayoutManager(HomeFragment().context)
-        tempPerDayAdapter = TempPerDayAdapter(this.requireContext())
-        binding.recyclerViewTempPerDay.layoutManager = tempPerDayLinearLayoutManager
-        binding.recyclerViewTempPerDay.adapter = tempPerDayAdapter
-
-//        viewModel.text.observe(viewLifecycleOwner) {
-//            binding.textHome.text = it
-//        }
+        binding.btnSetting.setOnClickListener {
+            Navigation.findNavController(view)
+                .navigate(R.id.action_navigation_home_to_settingsFragment)
+        }
     }
 
-    private fun fetchTempPerDayRecycler(daily: ArrayList<Daily>) {
-        tempPerDayAdapter.daily = daily
-        tempPerDayAdapter.notifyDataSetChanged()
+    private fun getIsMap(): Boolean {
+        return getSharedPreferences(requireContext()).getBoolean(getString(R.string.isMap), false)
     }
 
-    private fun fetchTempPerTimeRecycler(hourly: ArrayList<Hourly>) {
-        tempPerTimeAdapter.hourly = hourly
-        tempPerTimeAdapter.notifyDataSetChanged()
+    private fun setUnitSetting(units: String) {
+        when (units) {
+            "metric"   -> {
+                temperatureUnit = " °C"
+                windSpeedUnit = " m/s"
+            }
+            "imperial" -> {
+                temperatureUnit = " °F"
+                windSpeedUnit = " miles/h"
+            }
+            "standard" -> {
+                temperatureUnit = " °K"
+                windSpeedUnit = " m/s"
+            }
+        }
+    }
+
+    private fun fetchTempPerDayRecycler(daily: ArrayList<Daily>, temperatureUnit: String) {
+        tempPerDayAdapter.apply {
+            this.daily = daily
+            this.temperatureUnit = temperatureUnit
+            notifyDataSetChanged()
+        }
+    }
+
+    private fun fetchTempPerTimeRecycler(hourly: ArrayList<Hourly>, temperatureUnit: String) {
+        tempPerTimeAdapter.apply {
+            this.hourly = hourly
+            this.temperatureUnit = temperatureUnit
+            notifyDataSetChanged()
+        }
     }
 
     private fun setData(model: OpenWeatherApi) {
         val weather = model.current.weather[0]
-        binding.imageWeatherIcon.setImageResource(getIcon(weather.icon))
-        binding.textCurrentDay.text = convertCalenderToDayString(Calendar.getInstance())
-        binding.textCurrentDate.text = convertCalenderToDayDate(Calendar.getInstance())
-        binding.textCurrentTempreture.text = model.current.temp.toString()
-        binding.textTempDescription.text = weather.description
-        binding.textHumidity.text = model.current.humidity.toString()
-        binding.textPressure.text = model.current.pressure.toString()
-        binding.textWindSpeed.text = model.current.windSpeed.toString()
-        binding.textCity.text = getCityText(model.lat, model.lon)
-//        binding.textCity.text = model.timezone
-    }
-
-    private fun getCityText(lat: Double, lon: Double): String {
-        var city = ""
-        val geocoder = Geocoder(requireContext(), Locale("en"))
-        val addresses: List<Address>? = geocoder.getFromLocation(lat, lon, 1)
-        Log.i("ziny", "getCityText: $lat + $lon + $addresses")
-        if (addresses!!.isNotEmpty()) {
-            val state = addresses[0].adminArea // damietta
-            val country = addresses[0].countryName
-            city = "$state, $country"
+        binding.apply {
+            imageWeatherIcon.setImageResource(getIcon(weather.icon))
+            textCurrentDay.text = convertCalenderToDayString(Calendar.getInstance(), language)
+            textCurrentDate.text =
+                convertLongToDayDate(Calendar.getInstance().timeInMillis, language)
+            textCurrentTempreture.text = model.current.temp.toString().plus(temperatureUnit)
+            textTempDescription.text = weather.description
+            textHumidity.text = model.current.humidity.toString().plus("%")
+            textPressure.text = model.current.pressure.toString().plus(" hPa")
+            textWindSpeed.text = model.current.windSpeed.toString().plus(windSpeedUnit)
+            textCity.text = getCityText(requireContext(), model.lat, model.lon, language)
         }
-//        val knownName = addresses[0].featureName // elglaa
-        return city
+//        binding.textCity.text = model.timezone
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initTimeRecyclerView() {
+        val tempPerTimeLinearLayoutManager = LinearLayoutManager(HomeFragment().context)
+        tempPerTimeLinearLayoutManager.orientation = RecyclerView.HORIZONTAL
+        tempPerTimeAdapter = TempPerTimeAdapter(this.requireContext())
+        binding.recyclerViewTempPerTime.layoutManager = tempPerTimeLinearLayoutManager
+        binding.recyclerViewTempPerTime.adapter = tempPerTimeAdapter
+    }
+
+    private fun initDayRecyclerView() {
+        val tempPerDayLinearLayoutManager = LinearLayoutManager(HomeFragment().context)
+        tempPerDayAdapter = TempPerDayAdapter(this.requireContext())
+        binding.recyclerViewTempPerDay.layoutManager = tempPerDayLinearLayoutManager
+        binding.recyclerViewTempPerDay.adapter = tempPerDayAdapter
+    }
+
+    private fun setValuesFromSharedPreferences() {
+        getSharedPreferences(requireContext()).apply {
+            latitude = getFloat(getString(R.string.lat), 0.0f).toDouble()
+            longitude = getFloat(getString(R.string.lon), 0.0f).toDouble()
+            language = getString(getString(R.string.languageSetting), "en") ?: "en"
+            units = getString(getString(R.string.unitsSetting), "metric") ?: "metric"
+        }
+    }
+
+    override fun onNetworkConnectionChanged(isConnected: Boolean) {
+        if (isConnected) {
+            if (flagNoConnection) {
+                val snackBar = Snackbar.make(binding.root, "Back Online", Snackbar.LENGTH_SHORT)
+                snackBar.view.setBackgroundColor(Color.GREEN)
+                snackBar.show()
+                flagNoConnection = false
+                refreshFragment()
+            }
+        } else {
+            flagNoConnection = true
+            val snackBar = Snackbar.make(binding.root, "You are offline", Snackbar.LENGTH_LONG)
+            snackBar.view.setBackgroundColor(Color.RED)
+            snackBar.show()
+            getLocalData()
+        }
+    }
+
+    private fun getLocalData() {
+        if (!isSharedPreferencesLocationAndTimeZoneNull(requireContext())) {
+            viewModel.getDataFromDatabase()
+        }
+    }
+
+    private fun refreshFragment() {
+        val ft: FragmentTransaction = requireFragmentManager().beginTransaction()
+        if (Build.VERSION.SDK_INT >= 26) {
+            ft.setReorderingAllowed(false)
+        }
+        ft.detach(this).attach(this).commit()
     }
 
 }
