@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/black"
+    android:background="@color/purple_700"
     android:padding="16dp">
 
     <TextView
@@ -55,14 +55,16 @@
             android:id="@+id/radio_gps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
             android:checked="true"
             android:text="@string/gps"
             android:textColor="@color/white" />
 
         <RadioButton
-            android:id="@+id/radio_ninjas"
+            android:id="@+id/radio_maps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
             android:text="@string/map"
             android:textColor="@color/white" />
     </RadioGroup>
@@ -72,8 +74,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:backgroundTint="@color/white"
         android:text="@string/btn_ok"
-        android:textColor="@color/white"
+        android:textColor="@color/primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup" />

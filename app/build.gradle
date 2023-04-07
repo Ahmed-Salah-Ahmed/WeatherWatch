@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -56,6 +57,7 @@ dependencies {
 
     // Lottie
     implementation "com.airbnb.android:lottie:5.2.0"
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.0'
 
     // Retrofit
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
@@ -88,6 +90,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
+    // Settings
+    implementation 'androidx.preference:preference:1.2.0'
 
     // Testing
     testImplementation "androidx.test:core:1.5.0"

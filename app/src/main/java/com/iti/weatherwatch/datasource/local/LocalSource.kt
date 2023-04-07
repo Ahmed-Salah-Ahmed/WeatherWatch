@@ -1,14 +1,29 @@
 package com.iti.weatherwatch.datasource.local
 
-import androidx.lifecycle.LiveData
 import com.iti.weatherwatch.model.OpenWeatherApi
+import com.iti.weatherwatch.model.WeatherAlert
+import kotlinx.coroutines.flow.Flow
 
 interface LocalSource {
-    fun getCurrentWeather(timeZone: String): LiveData<OpenWeatherApi>
+    fun getCurrentWeather(): OpenWeatherApi
 
     suspend fun insertCurrentWeather(weather: OpenWeatherApi)
 
-    suspend fun updateCurrentWeather(weather: OpenWeatherApi)
+    suspend fun updateWeather(weather: OpenWeatherApi)
 
-    suspend fun deleteWeather(timeZone: String)
+    suspend fun deleteWeathers()
+
+    fun getFavoritesWeather(
+    ): Flow<List<OpenWeatherApi>>
+
+    suspend fun deleteFavoriteWeather(id: Int)
+
+    fun getFavoriteWeather(id: Int): OpenWeatherApi
+
+    suspend fun insertAlert(alert: WeatherAlert)
+
+    fun getAlertsList(): Flow<List<WeatherAlert>>
+
+    suspend fun deleteAlert(id: Int)
+
 }
