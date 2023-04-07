@@ -1,11 +1,29 @@
 package com.iti.weatherwatch.alerts.viewmodel
 
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.model.WeatherAlert
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
-class AlertsViewModel : ViewModel() {
+class AlertsViewModel(private val repository: WeatherRepository) : ViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is alerts Fragment"
+    private var _alerts = MutableStateFlow<List<WeatherAlert>>(emptyList())
+    val alerts = _alerts
+
+    fun getFavorites() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAlertsList().collect {
+                _alerts.emit(it)
+            }
+        }
     }
-    val text: LiveData<String> = _text
+
+    fun deleteFavoriteWeather(id: Int) {
+        viewModelScope.launch {
+            repository.deleteAlert(id)
+        }
+    }
 }
