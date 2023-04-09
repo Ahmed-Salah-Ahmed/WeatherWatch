@@ -49,10 +49,10 @@
     <string name="title_settings">Settings</string>
     <string name="to">To</string>
     <string name="twenty_four_hour_forecast">24-hour forecast</string>
-    <string name="units">Units</string>
-    <string name="unit_celsius">Celsius and wind speed in meter/sec</string>
-    <string name="unit_fahrenheit">Fahrenheit and wind speed in miles/hour</string>
-    <string name="unit_kelvin">Kelvin and wind speed in meter/sec</string>
+    <string name="units">Temperature &amp; Wind Speed</string>
+    <string name="unit_celsius">Standard – Celsius  –  meter/sec</string>
+    <string name="unit_fahrenheit">Imperial – Fahrenheit  –  miles/hour</string>
+    <string name="unit_kelvin">Metric – Kelvin  –  meter/sec</string>
     <string name="uv">UV</string>
     <string name="visibility">Visibility</string>
     <string name="wind_speed">Wind speed</string>
