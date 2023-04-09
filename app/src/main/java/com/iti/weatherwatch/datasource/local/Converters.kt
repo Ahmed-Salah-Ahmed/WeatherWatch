@@ -2,7 +2,7 @@ package com.iti.weatherwatch.datasource.local
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.iti.weatherwatch.model.*
+import com.iti.weatherwatch.datasource.model.*
 
 class Converters {
 

@@ -1,6 +1,6 @@
 package com.iti.weatherwatch.datasource.remote
 
-import com.iti.weatherwatch.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

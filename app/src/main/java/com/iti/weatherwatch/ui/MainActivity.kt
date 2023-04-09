@@ -1,14 +1,17 @@
-package com.iti.weatherwatch
+package com.iti.weatherwatch.ui
 
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.ActivityMainBinding
 import com.iti.weatherwatch.util.getCurrentLocale
 import com.iti.weatherwatch.util.getSharedPreferences
@@ -27,9 +30,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.languageSetting),
             local?.language
         ) ?: local?.language
-        if (language != null) {
-            setLocale(language)
-        }
+        setLocale(language!!)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -39,11 +40,20 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+
+        navController.addOnDestinationChangedListener { _, nd: NavDestination, _ ->
+            if (nd.id == R.id.navigation_home || nd.id == R.id.navigation_favorites
+                || nd.id == R.id.navigation_notifications) {
+                navView.visibility = View.VISIBLE
+            } else {
+                navView.visibility = View.GONE
+            }
+        }
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         /*val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
+                R.id.navigation_home, R.id.navigation_favorites, R.id.navigation_notifications
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)*/

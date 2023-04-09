@@ -3,7 +3,7 @@ package com.iti.weatherwatch.alerts.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iti.weatherwatch.datasource.WeatherRepository
-import com.iti.weatherwatch.model.WeatherAlert
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

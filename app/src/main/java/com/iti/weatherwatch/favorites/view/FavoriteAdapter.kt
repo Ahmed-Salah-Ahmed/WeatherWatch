@@ -8,8 +8,8 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.FavoriteCardBinding
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModel
-import com.iti.weatherwatch.model.OpenWeatherApi
 import com.iti.weatherwatch.util.getCityText
 import com.iti.weatherwatch.util.getSharedPreferences
 

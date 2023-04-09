@@ -1,6 +1,5 @@
-package com.iti.weatherwatch.model
+package com.iti.weatherwatch.datasource.model
 
-import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
@@ -121,7 +120,6 @@ data class Alerts(
 @Entity(tableName = "alert")
 data class WeatherAlert(
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     val id: Int? = null,
     var startTime: Long,
     var endTime: Long,

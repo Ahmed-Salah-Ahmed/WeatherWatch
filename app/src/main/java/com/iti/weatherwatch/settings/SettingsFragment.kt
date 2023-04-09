@@ -1,15 +1,13 @@
-package com.iti.weatherwatch.settings.view
+package com.iti.weatherwatch.settings
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.iti.weatherwatch.MainActivity
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.SettingsFragmentBinding
-import com.iti.weatherwatch.settings.viewmodel.SettingsViewModel
+import com.iti.weatherwatch.ui.MainActivity
 import com.iti.weatherwatch.util.getSharedPreferences
 
 class SettingsFragment : Fragment() {
@@ -22,8 +20,6 @@ class SettingsFragment : Fragment() {
     private lateinit var oldUnitSetting: String
     private lateinit var oldLanguageSetting: String
     private var oldLocationSetting: Boolean = false
-
-    private val viewModel: SettingsViewModel by viewModels()
 
     private val binding get() = _binding!!
 
@@ -118,6 +114,8 @@ class SettingsFragment : Fragment() {
             putString(getString(R.string.languageSetting), newLanguageSetting)
             if (newLocationSetting && !oldLocationSetting) {
                 resetLocationData()
+            } else if (oldLocationSetting && !newLocationSetting) {
+                resetLocationData()
             }
             putBoolean(getString(R.string.isMap), newLocationSetting)
             apply()
@@ -148,13 +146,13 @@ class SettingsFragment : Fragment() {
 
     private fun changeMapLocationDialog() {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Do you want to change your location on map again?")
-            .setNegativeButton("No") { dialog, _ ->
+            .setTitle(getString(R.string.map_dialog_title))
+            .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                 setSettingsToSharedPreferences()
                 backToHomeScreen()
                 dialog.dismiss()
             }
-            .setPositiveButton("Yes") { dialog, _ ->
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
                 resetLocationData()
                 setSettingsToSharedPreferences()
                 backToHomeScreen()

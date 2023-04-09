@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.iti.weatherwatch.datasource.IWeatherRepository
 import com.iti.weatherwatch.datasource.MyLocationProvider
-import com.iti.weatherwatch.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import kotlinx.coroutines.*
 
 class HomeViewModel(
@@ -34,7 +34,7 @@ class HomeViewModel(
                                 units
                             )
                     } catch (e: Exception) {
-                        Log.i("zoz", "getDataFromRemoteToLocal: ${e.message}")
+                        Log.d("Error in HomeViewModel", e.toString())
                     }
 
                 }

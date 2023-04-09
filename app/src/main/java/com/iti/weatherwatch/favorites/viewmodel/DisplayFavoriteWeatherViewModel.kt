@@ -2,7 +2,7 @@ package com.iti.weatherwatch.favorites.viewmodel
 
 import androidx.lifecycle.*
 import com.iti.weatherwatch.datasource.WeatherRepository
-import com.iti.weatherwatch.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import kotlinx.coroutines.*
 
 class DisplayFavoriteWeatherViewModel(private val repository: WeatherRepository) : ViewModel() {

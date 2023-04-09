@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.FragmentFavoritesBinding
 import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModel
 import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModelFactory
-import com.iti.weatherwatch.model.OpenWeatherApi
 
 class FavoritesFragment : Fragment() {
 
@@ -52,7 +52,9 @@ class FavoritesFragment : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             viewModel.favorites.collect {
-                if (!it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty()) {
+                    binding.textEmptyList.visibility = View.VISIBLE
+                } else {
                     binding.textEmptyList.visibility = View.GONE
                 }
                 fetchFavoritesRecycler(it)
