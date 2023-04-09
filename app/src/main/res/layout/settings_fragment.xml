@@ -10,8 +10,7 @@
         android:id="@+id/constrain_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/primary"
-        tools:context=".settings.view.SettingsFragment">
+        tools:context=".settings.SettingsFragment">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
@@ -20,7 +19,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            app:cardBackgroundColor="@color/purple_700"
+            app:cardBackgroundColor="@color/secondary"
             app:cardCornerRadius="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +34,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:contentDescription="@string/image_content_description"
                     android:src="@drawable/back"
                     app:layout_constraintBottom_toBottomOf="@+id/textView5"
                     app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,7 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
-            app:cardBackgroundColor="@color/purple_700"
+            app:cardBackgroundColor="@color/secondary"
             app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/cardView2">
@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/purple_700"
+            app:cardBackgroundColor="@color/secondary"
             app:cardCornerRadius="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardView4">
@@ -174,7 +174,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            app:cardBackgroundColor="@color/purple_700"
+            app:cardBackgroundColor="@color/secondary"
             app:cardCornerRadius="16dp"
             app:layout_constraintBottom_toTopOf="@+id/btn_save"
             app:layout_constraintEnd_toEndOf="@+id/cardView3"
@@ -221,7 +221,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:buttonTint="@color/white"
-                        android:text="@string/unit_fahrenhite"
+                        android:text="@string/unit_fahrenheit"
                         android:textColor="@color/white" />
 
                     <RadioButton
@@ -240,7 +240,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/purple_700"
+            android:backgroundTint="@color/secondary"
             android:text="@string/btn_save"
             android:textColor="@color/white"
             app:cornerRadius="16dp"
