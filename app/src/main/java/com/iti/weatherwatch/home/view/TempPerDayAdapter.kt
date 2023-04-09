@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.TempPerDayCardBinding
-import com.iti.weatherwatch.model.Daily
-import com.iti.weatherwatch.util.getIcon
-import com.iti.weatherwatch.util.getSharedPreferences
+import com.iti.weatherwatch.datasource.model.Daily
+import com.iti.weatherwatch.util.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -42,7 +41,13 @@ class TempPerDayAdapter(private val context: Context) :
         holder.binding.imageCardDayIcon.setImageResource(getIcon(day.weather[0].icon))
         holder.binding.textCardDay.text = convertLongToDay(day.dt)
         holder.binding.textCardDayTempDescription.text = day.weather[0].description
-        holder.binding.textCardDayTemp.text = day.temp.day.toString().plus(temperatureUnit)
+        if (language == "ar") {
+            holder.binding.textCardDayTemp.text =
+                convertNumbersToArabic(day.temp.day.toInt()).plus(temperatureUnit)
+        } else {
+            holder.binding.textCardDayTemp.text =
+                day.temp.day.toInt().toString().plus(temperatureUnit)
+        }
     }
 
     override fun getItemCount(): Int {

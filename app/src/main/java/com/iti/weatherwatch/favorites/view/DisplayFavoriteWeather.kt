@@ -1,5 +1,6 @@
 package com.iti.weatherwatch.favorites.view
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -7,13 +8,14 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.DisplayFavoriteWeatherFragmentBinding
 import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.datasource.model.*
 import com.iti.weatherwatch.favorites.viewmodel.DisplayFavoriteViewModelFactory
 import com.iti.weatherwatch.favorites.viewmodel.DisplayFavoriteWeatherViewModel
 import com.iti.weatherwatch.home.view.*
-import com.iti.weatherwatch.model.*
 import com.iti.weatherwatch.util.*
 import java.util.*
 
@@ -45,7 +47,6 @@ class DisplayFavoriteWeather : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         handleBackButton()
         binding.btnBack.setOnClickListener {
-            activity?.supportFragmentManager?.popBackStack()
             Navigation.findNavController(it)
                 .navigate(R.id.action_displayFavoriteWeather_to_navigation_dashboard)
         }
@@ -60,6 +61,9 @@ class DisplayFavoriteWeather : Fragment() {
             getOnlineNeeds()
             viewModel.updateWeather(latitude, longitude, units, language, id)
         } else {
+            val snackBar = Snackbar.make(binding.root, "You are offline", Snackbar.LENGTH_LONG)
+            snackBar.view.setBackgroundColor(Color.RED)
+            snackBar.show()
             viewModel.getWeather(id)
         }
         viewModel.weather.observe(viewLifecycleOwner) {
@@ -99,19 +103,10 @@ class DisplayFavoriteWeather : Fragment() {
     }
 
     private fun setUnitSetting(units: String) {
-        when (units) {
-            "metric"   -> {
-                temperatureUnit = " °C"
-                windSpeedUnit = " m/s"
-            }
-            "imperial" -> {
-                temperatureUnit = " °F"
-                windSpeedUnit = " miles/h"
-            }
-            "standard" -> {
-                temperatureUnit = " °K"
-                windSpeedUnit = " m/s"
-            }
+        if (language == "en") {
+            setEnglishUnits(units)
+        } else {
+            setArabicUnit(units)
         }
     }
 
@@ -138,14 +133,14 @@ class DisplayFavoriteWeather : Fragment() {
             textCurrentDay.text = convertCalenderToDayString(Calendar.getInstance(), language)
             textCurrentDate.text =
                 convertLongToDayDate(Calendar.getInstance().timeInMillis, language)
-            textCurrentTempreture.text = model.current.temp.toString().plus(temperatureUnit)
             textTempDescription.text = weather.description
-            textHumidity.text = model.current.humidity.toString().plus("%")
-            textPressure.text = model.current.pressure.toString().plus(" hPa")
-            textWindSpeed.text = model.current.windSpeed.toString().plus(windSpeedUnit)
             textCity.text = getCityText(requireContext(), model.lat, model.lon, language)
+            if (language == "ar") {
+                bindArabicUnits(model)
+            } else {
+                bindEnglishUnits(model)
+            }
         }
-//        binding.textCity.text = model.timezone
     }
 
     private fun handleBackButton() {
@@ -159,6 +154,70 @@ class DisplayFavoriteWeather : Fragment() {
             }
             return@OnKeyListener false
         })
+    }
+
+    private fun setArabicUnit(units: String) {
+        when (units) {
+            "metric"   -> {
+                temperatureUnit = " °م"
+                windSpeedUnit = " م/ث"
+            }
+            "imperial" -> {
+                temperatureUnit = " °ف"
+                windSpeedUnit = " ميل/س"
+            }
+            "standard" -> {
+                temperatureUnit = " °ك"
+                windSpeedUnit = " م/ث"
+            }
+        }
+    }
+
+    private fun setEnglishUnits(units: String) {
+        when (units) {
+            "metric"   -> {
+                temperatureUnit = " °C"
+                windSpeedUnit = " m/s"
+            }
+            "imperial" -> {
+                temperatureUnit = " °F"
+                windSpeedUnit = " miles/h"
+            }
+            "standard" -> {
+                temperatureUnit = " °K"
+                windSpeedUnit = " m/s"
+            }
+        }
+    }
+
+    private fun bindArabicUnits(model: OpenWeatherApi) {
+        binding.apply {
+            textCurrentTempreture.text =
+                convertNumbersToArabic(model.current.temp.toInt()).plus(temperatureUnit)
+            textHumidity.text = convertNumbersToArabic(model.current.humidity)
+                .plus("٪")
+            textPressure.text = convertNumbersToArabic(model.current.pressure)
+                .plus(" هب")
+            textClouds.text = convertNumbersToArabic(model.current.clouds)
+                .plus("٪")
+            textVisibility.text = convertNumbersToArabic(model.current.visibility)
+                .plus("م")
+            textUvi.text = convertNumbersToArabic(model.current.uvi.toInt())
+            textWindSpeed.text =
+                convertNumbersToArabic(model.current.windSpeed).plus(windSpeedUnit)
+        }
+    }
+
+    private fun bindEnglishUnits(model: OpenWeatherApi) {
+        binding.apply {
+            textCurrentTempreture.text = model.current.temp.toInt().toString().plus(temperatureUnit)
+            textHumidity.text = model.current.humidity.toString().plus("%")
+            textPressure.text = model.current.pressure.toString().plus(" hPa")
+            textClouds.text = model.current.clouds.toString().plus("%")
+            textVisibility.text = model.current.visibility.toString().plus("m")
+            textUvi.text = model.current.uvi.toString()
+            textWindSpeed.text = model.current.windSpeed.toString().plus(windSpeedUnit)
+        }
     }
 
 }

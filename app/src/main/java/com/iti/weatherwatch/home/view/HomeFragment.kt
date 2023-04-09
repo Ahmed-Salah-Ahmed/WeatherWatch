@@ -75,7 +75,18 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
             if (isSharedPreferencesLocationAndTimeZoneNull(requireContext())) {
                 if (!isSharedPreferencesLatAndLongNull(requireContext())) {
                     setValuesFromSharedPreferences()
-                    viewModel.getDataFromRemoteToLocal("$latitude", "$longitude", language, units)
+                    try {
+                        viewModel.getDataFromRemoteToLocal(
+                            "$latitude",
+                            "$longitude",
+                            language,
+                            units
+                        )
+                    } catch (e: Exception) {
+                        val snackBar =
+                            Snackbar.make(binding.root, "${e.message}", Snackbar.LENGTH_SHORT)
+                        snackBar.show()
+                    }
                 } else if (getIsMap()) {
                     Navigation.findNavController(view)
                         .navigate(R.id.action_navigation_home_to_mapsFragment)
@@ -93,24 +104,6 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
                             binding.textDialog.text = getString(R.string.location_enabled)
                         }
 
-                    viewModel.observeLocation().observe(viewLifecycleOwner) {
-                        if (it[0] != 0.0 && it[1] != 0.0) {
-                            latitude = it[0]
-                            longitude = it[1]
-                            val local = getCurrentLocale(requireContext())
-                            language = getSharedPreferences(requireContext()).getString(
-                                getString(R.string.languageSetting), local?.language
-                            )!!
-                            units = getSharedPreferences(requireContext()).getString(
-                                getString(R.string.unitsSetting),
-                                "metric"
-                            )!!
-                            viewModel.getDataFromRemoteToLocal(
-                                "$latitude",
-                                "$longitude",
-                                language,
-                                units
-                            )
                         binding.btnEnable.setOnClickListener {
                             if (ActivityCompat.shouldShowRequestPermissionRationale(
                                     requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION
@@ -128,7 +121,18 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
                 }
             } else {
                 setValuesFromSharedPreferences()
-                viewModel.getDataFromRemoteToLocal("$latitude", "$longitude", language, units)
+                try {
+                    viewModel.getDataFromRemoteToLocal(
+                        "$latitude",
+                        "$longitude",
+                        language,
+                        units
+                    )
+                } catch (e: Exception) {
+                    val snackBar =
+                        Snackbar.make(binding.root, "${e.message}", Snackbar.LENGTH_SHORT)
+                    snackBar.show()
+                }
             }
         }
 
@@ -138,24 +142,78 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
         //tempPerDayAdapter
         initDayRecyclerView()
 
+        initSwipeRefresh()
+
+        viewModel.observeLocation().observe(viewLifecycleOwner) {
+            binding.homeView.visibility = View.VISIBLE
+            binding.cardLocation.visibility = View.GONE
+            if (it[0] != 0.0 && it[1] != 0.0) {
+                latitude = it[0]
+                longitude = it[1]
+                val local = getCurrentLocale(requireContext())
+                language = getSharedPreferences(requireContext()).getString(
+                    getString(R.string.languageSetting), local?.language
+                )!!
+                units = getSharedPreferences(requireContext()).getString(
+                    getString(R.string.unitsSetting),
+                    "metric"
+                )!!
+                try {
+                    viewModel.getDataFromRemoteToLocal(
+                        "$latitude",
+                        "$longitude",
+                        language,
+                        units
+                    )
+                } catch (e: Exception) {
+                    val snackBar =
+                        Snackbar.make(binding.root, "${e.message}", Snackbar.LENGTH_SHORT)
+                    snackBar.show()
+                }
+            }
+        }
+
         viewModel.openWeatherAPI.observe(viewLifecycleOwner) {
-            updateSharedPreferences(
-                requireContext(),
-                it.lat,
-                it.lon,
-                getCityText(requireContext(), it.lat, it.lon, language),
-                it.timezone
-            )
-            setUnitSetting(units)
-            setData(it)
-            fetchTempPerTimeRecycler(it.hourly as ArrayList<Hourly>, temperatureUnit)
-            fetchTempPerDayRecycler(it.daily as ArrayList<Daily>, temperatureUnit)
+            if (it != null) {
+                binding.swiperefresh.isRefreshing = false
+                updateSharedPreferences(
+                    requireContext(),
+                    it.lat,
+                    it.lon,
+                    getCityText(requireContext(), it.lat, it.lon, language),
+                    it.timezone
+                )
+                setUnitSetting(units)
+                setData(it)
+                fetchTempPerTimeRecycler(it.hourly as ArrayList<Hourly>, temperatureUnit)
+                fetchTempPerDayRecycler(it.daily as ArrayList<Daily>, temperatureUnit)
+            }
         }
     }
 
-        binding.btnSetting.setOnClickListener {
-            Navigation.findNavController(view)
-                .navigate(R.id.action_navigation_home_to_settingsFragment)
+    private fun initSwipeRefresh() {
+        binding.swiperefresh.setOnRefreshListener {
+            if (getIsMap()) {
+                if (!isSharedPreferencesLatAndLongNull(requireContext())) {
+                    binding.swiperefresh.isRefreshing = true
+                    setValuesFromSharedPreferences()
+                    try {
+                        viewModel.getDataFromRemoteToLocal(
+                            "$latitude",
+                            "$longitude",
+                            language,
+                            units
+                        )
+                    } catch (e: Exception) {
+                        val snackBar =
+                            Snackbar.make(binding.root, "${e.message}", Snackbar.LENGTH_SHORT)
+                        snackBar.show()
+                    }
+                }
+            } else {
+                binding.swiperefresh.isRefreshing = true
+                viewModel.getFreshLocation()
+            }
         }
     }
 
@@ -164,19 +222,10 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
     }
 
     private fun setUnitSetting(units: String) {
-        when (units) {
-            "metric"   -> {
-                temperatureUnit = " °C"
-                windSpeedUnit = " m/s"
-            }
-            "imperial" -> {
-                temperatureUnit = " °F"
-                windSpeedUnit = " miles/h"
-            }
-            "standard" -> {
-                temperatureUnit = " °K"
-                windSpeedUnit = " m/s"
-            }
+        if (language == "en") {
+            setEnglishUnits(units)
+        } else {
+            setArabicUnit(units)
         }
     }
 
@@ -205,6 +254,11 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
                 convertLongToDayDate(Calendar.getInstance().timeInMillis, language)
             textTempDescription.text = weather.description
             textCity.text = getCityText(requireContext(), model.lat, model.lon, language)
+            if (language == "ar") {
+                bindArabicUnits(model)
+            } else {
+                bindEnglishUnits(model)
+            }
         }
     }
 
@@ -269,4 +323,67 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
         ft.detach(this).attach(this).commit()
     }
 
+    private fun setArabicUnit(units: String) {
+        when (units) {
+            "metric"   -> {
+                temperatureUnit = " °م"
+                windSpeedUnit = " م/ث"
+            }
+            "imperial" -> {
+                temperatureUnit = " °ف"
+                windSpeedUnit = " ميل/س"
+            }
+            "standard" -> {
+                temperatureUnit = " °ك"
+                windSpeedUnit = " م/ث"
+            }
+        }
+    }
+
+    private fun setEnglishUnits(units: String) {
+        when (units) {
+            "metric"   -> {
+                temperatureUnit = " °C"
+                windSpeedUnit = " m/s"
+            }
+            "imperial" -> {
+                temperatureUnit = " °F"
+                windSpeedUnit = " miles/h"
+            }
+            "standard" -> {
+                temperatureUnit = " °K"
+                windSpeedUnit = " m/s"
+            }
+        }
+    }
+
+    private fun bindArabicUnits(model: OpenWeatherApi) {
+        binding.apply {
+            textCurrentTempreture.text =
+                convertNumbersToArabic(model.current.temp.toInt()).plus(temperatureUnit)
+            textHumidity.text = convertNumbersToArabic(model.current.humidity)
+                .plus("٪")
+            textPressure.text = convertNumbersToArabic(model.current.pressure)
+                .plus(" هب")
+            textClouds.text = convertNumbersToArabic(model.current.clouds)
+                .plus("٪")
+            textVisibility.text = convertNumbersToArabic(model.current.visibility)
+                .plus("م")
+            textUvi.text = convertNumbersToArabic(model.current.uvi.toInt())
+            textWindSpeed.text =
+                convertNumbersToArabic(model.current.windSpeed).plus(windSpeedUnit)
+        }
+    }
+
+    private fun bindEnglishUnits(model: OpenWeatherApi) {
+        binding.apply {
+            textCurrentTempreture.text = model.current.temp.toInt().toString().plus(temperatureUnit)
+            textHumidity.text = model.current.humidity.toString().plus("%")
+            textPressure.text = model.current.pressure.toString().plus(" hPa")
+            textClouds.text = model.current.clouds.toString().plus("%")
+            textVisibility.text = model.current.visibility.toString().plus("m")
+            textUvi.text = model.current.uvi.toString()
+            textWindSpeed.text = model.current.windSpeed.toString().plus(windSpeedUnit)
+        }
+    }
 }
