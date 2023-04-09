@@ -1,16 +1,25 @@
 package com.iti.weatherwatch.dialogs.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.iti.weatherwatch.datasource.WeatherRepository
-import com.iti.weatherwatch.model.WeatherAlert
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AlertTimeDialogViewModel(private val repository: WeatherRepository) : ViewModel() {
     fun insertAlert(alert: WeatherAlert) {
+        var response: Long? = null
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertAlert(alert)
+            val job = viewModelScope.launch(Dispatchers.IO) {
+                response = repository.insertAlert(alert)
+            }
+            job.join()
+            if (response != null) {
+                _id.postValue(response!!)
+            }
         }
     }
+
+    private var _id = MutableLiveData<Long>()
+    val id = _id
 }

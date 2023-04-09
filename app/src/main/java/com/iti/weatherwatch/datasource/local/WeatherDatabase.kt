@@ -1,9 +1,10 @@
 package com.iti.weatherwatch.datasource.local
 
 import android.app.Application
+import android.content.Context
 import androidx.room.*
-import com.iti.weatherwatch.model.OpenWeatherApi
-import com.iti.weatherwatch.model.WeatherAlert
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 
 @TypeConverters(Converters::class)
 @Database(
@@ -21,6 +22,19 @@ abstract class WeatherDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     application.applicationContext,
+                    WeatherDatabase::class.java,
+                    "weather.db"
+                ).fallbackToDestructiveMigration()
+                    .build().also {
+                        INSTANCE = it
+                    }
+            }
+        }
+
+        fun getDatabase(context: Context): WeatherDatabase {
+            return INSTANCE ?: synchronized(this) {
+                Room.databaseBuilder(
+                    context.applicationContext,
                     WeatherDatabase::class.java,
                     "weather.db"
                 ).fallbackToDestructiveMigration()

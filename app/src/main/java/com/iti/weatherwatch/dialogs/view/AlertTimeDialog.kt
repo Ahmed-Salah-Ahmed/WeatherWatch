@@ -4,18 +4,19 @@ import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.TimePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.work.*
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.AlertTimeDialogFragmentBinding
 import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import com.iti.weatherwatch.dialogs.viewmodel.AlertTimeDialogViewModel
 import com.iti.weatherwatch.dialogs.viewmodel.AlertTimeViewModelFactory
-import com.iti.weatherwatch.model.WeatherAlert
 import com.iti.weatherwatch.util.*
+import com.iti.weatherwatch.workmanager.AlertPeriodicWorkManger
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -45,7 +46,7 @@ class AlertTimeDialog : DialogFragment() {
             getString(R.string.languageSetting),
             getCurrentLocale(requireContext())?.language
         )!!
-        setCardsInitialText()
+        setInitialData()
 
         binding.btnFrom.setOnClickListener {
             showDatePicker(true)
@@ -59,24 +60,69 @@ class AlertTimeDialog : DialogFragment() {
             viewModel.insertAlert(weatherAlert)
             dialog!!.dismiss()
         }
+
+        binding.btnCancel.setOnClickListener {
+            dialog!!.dismiss()
+        }
+
+        viewModel.id.observe(viewLifecycleOwner) {
+            setPeriodWorkManger(it)
+        }
     }
 
-    private fun setCardsInitialText() {
-        val current = Calendar.getInstance().timeInMillis
-        val timeNow = convertLongToTime(current / 1000L, language)
-        val currentDate = convertLongToDayDate(current, language)
-        val oneHour = 3600000L
-        val afterOneHour = current + oneHour
-        val timeAfterOneHour = convertLongToTime(afterOneHour / 1000L, language)
-        weatherAlert = WeatherAlert(null, current / 1000, afterOneHour / 1000, current, current)
-        binding.btnFrom.text = currentDate.plus("\n").plus(timeNow)
-        binding.btnTo.text = currentDate.plus("\n").plus(timeAfterOneHour)
+    private fun setPeriodWorkManger(id: Long) {
+
+        val data = Data.Builder()
+        data.putLong("id", id)
+
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        val periodicWorkRequest = PeriodicWorkRequest.Builder(
+            AlertPeriodicWorkManger::class.java,
+            24, TimeUnit.HOURS
+        )
+            .setConstraints(constraints)
+            .setInputData(data.build())
+            .build()
+
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+            "$id",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            periodicWorkRequest
+        )
+    }
+
+    private fun setInitialData() {
+        val rightNow = Calendar.getInstance()
+        // init time
+        val currentHour = TimeUnit.HOURS.toSeconds(rightNow.get(Calendar.HOUR_OF_DAY).toLong())
+        val currentMinute = TimeUnit.MINUTES.toSeconds(rightNow.get(Calendar.MINUTE).toLong())
+        val currentTime = (currentHour + currentMinute).minus(3600L * 2)
+        val currentTimeText = convertLongToTime((currentTime + 60), language)
+        val afterOneHour = currentTime.plus(3600L)
+        val afterOneHourText = convertLongToTime(afterOneHour, language)
+        // init day
+        val year = rightNow.get(Calendar.YEAR)
+        val month = rightNow.get(Calendar.MONTH)
+        val day = rightNow.get(Calendar.DAY_OF_MONTH)
+        val date = "$day/${month + 1}/$year"
+        val dayNow = getDateMillis(date)
+        val currentDate = convertLongToDayDate(dayNow, language)
+        //init model
+        weatherAlert =
+            WeatherAlert(null, (currentTime + 60), afterOneHour, dayNow, dayNow)
+        //init text
+        binding.btnFrom.text = currentDate.plus("\n").plus(currentTimeText)
+        binding.btnTo.text = currentDate.plus("\n").plus(afterOneHourText)
     }
 
     private fun showTimePicker(isFrom: Boolean, datePicker: Long) {
         Locale.setDefault(Locale(language))
-        val currentHour = Calendar.HOUR_OF_DAY
-        val currentMinute = Calendar.MINUTE
+        val rightNow = Calendar.getInstance()
+        val currentHour = rightNow.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = rightNow.get(Calendar.MINUTE)
         val listener: (TimePicker?, Int, Int) -> Unit =
             { _: TimePicker?, hour: Int, minute: Int ->
                 val time = TimeUnit.MINUTES.toSeconds(minute.toLong()) +
@@ -86,12 +132,10 @@ class AlertTimeDialog : DialogFragment() {
                 val text = dateString.plus("\n").plus(timeString)
                 if (isFrom) {
                     weatherAlert.startTime = time
-                    Log.i("yoka", "startTime: $time")
                     weatherAlert.startDate = datePicker
                     binding.btnFrom.text = text
                 } else {
                     weatherAlert.endTime = time
-                    Log.i("yoka", "endTime: $time")
                     weatherAlert.endDate = datePicker
                     binding.btnTo.text = text
                 }

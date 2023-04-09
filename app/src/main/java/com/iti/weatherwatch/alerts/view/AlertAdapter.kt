@@ -1,14 +1,14 @@
 package com.iti.weatherwatch.alerts.view
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkManager
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.alerts.viewmodel.AlertsViewModel
 import com.iti.weatherwatch.databinding.AlertCardBinding
-import com.iti.weatherwatch.model.WeatherAlert
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import com.iti.weatherwatch.util.*
 
 class AlertAdapter(private val context: Context, private val viewModel: AlertsViewModel) :
@@ -35,9 +35,9 @@ class AlertAdapter(private val context: Context, private val viewModel: AlertsVi
             getCurrentLocale(context)?.language
         )!!
         val alert = alertsList[position]
-        Log.i("yoka", "onBindViewHolder: ${alert.id}")
         holder.binding.btnDelete.setOnClickListener {
             viewModel.deleteFavoriteWeather(alert.id!!)
+            WorkManager.getInstance().cancelAllWorkByTag("${alert.id}")
         }
         holder.binding.textFrom.text =
             convertLongToDayDate(alert.startDate, language).plus(" ").plus(

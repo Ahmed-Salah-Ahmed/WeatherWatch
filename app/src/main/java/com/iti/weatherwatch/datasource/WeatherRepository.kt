@@ -1,11 +1,12 @@
 package com.iti.weatherwatch.datasource
 
 import android.app.Application
+import android.content.Context
 import com.iti.weatherwatch.datasource.local.*
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import com.iti.weatherwatch.datasource.remote.RemoteSource
 import com.iti.weatherwatch.datasource.remote.RetrofitHelper
-import com.iti.weatherwatch.model.OpenWeatherApi
-import com.iti.weatherwatch.model.WeatherAlert
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,17 @@ class WeatherRepository(
                 WeatherRepository(
                     RetrofitHelper,
                     RoomLocalClass(WeatherDatabase.getDatabase(app).weatherDao())
+                ).also {
+                    INSTANCE = it
+                }
+            }
+        }
+
+        fun getRepository(context: Context): WeatherRepository {
+            return INSTANCE ?: synchronized(this) {
+                WeatherRepository(
+                    RetrofitHelper,
+                    RoomLocalClass(WeatherDatabase.getDatabase(context).weatherDao())
                 ).also {
                     INSTANCE = it
                 }
@@ -113,8 +125,8 @@ class WeatherRepository(
         }
     }
 
-    override suspend fun insertAlert(alert: WeatherAlert) {
-        weatherLocalDataSource.insertAlert(alert)
+    override suspend fun insertAlert(alert: WeatherAlert): Long {
+        return weatherLocalDataSource.insertAlert(alert)
     }
 
     override fun getAlertsList(): Flow<List<WeatherAlert>> {
@@ -124,4 +136,9 @@ class WeatherRepository(
     override suspend fun deleteAlert(id: Int) {
         weatherLocalDataSource.deleteAlert(id)
     }
+
+    override fun getAlert(id: Int): WeatherAlert {
+        return weatherLocalDataSource.getAlert(id)
+    }
+
 }

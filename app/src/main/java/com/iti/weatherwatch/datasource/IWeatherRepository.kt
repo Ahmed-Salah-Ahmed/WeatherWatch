@@ -1,7 +1,7 @@
 package com.iti.weatherwatch.datasource
 
-import com.iti.weatherwatch.model.OpenWeatherApi
-import com.iti.weatherwatch.model.WeatherAlert
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import kotlinx.coroutines.flow.Flow
 
 interface IWeatherRepository {
@@ -39,10 +39,12 @@ interface IWeatherRepository {
         id: Int
     ): OpenWeatherApi
 
-    suspend fun insertAlert(alert: WeatherAlert)
+    suspend fun insertAlert(alert: WeatherAlert): Long
 
     fun getAlertsList(): Flow<List<WeatherAlert>>
 
     suspend fun deleteAlert(id: Int)
+
+    fun getAlert(id: Int): WeatherAlert
 
 }
