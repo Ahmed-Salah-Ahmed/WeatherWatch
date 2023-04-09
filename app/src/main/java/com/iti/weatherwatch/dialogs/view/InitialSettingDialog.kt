@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import com.iti.weatherwatch.MainActivity
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.InitialSettingDialogBinding
 import com.iti.weatherwatch.datasource.MyLocationProvider
 import com.iti.weatherwatch.dialogs.viewmodel.DialogViewModel
 import com.iti.weatherwatch.dialogs.viewmodel.DialogViewModelFactory
+import com.iti.weatherwatch.ui.MainActivity
 import com.iti.weatherwatch.util.getCurrentLocale
 import com.iti.weatherwatch.util.getSharedPreferences
 
@@ -28,9 +28,7 @@ class InitialSettingDialog : DialogFragment() {
     ): View {
         dialog!!.window?.setBackgroundDrawableResource(R.drawable.round_corner)
         _binding = InitialSettingDialogBinding.inflate(inflater, container, false)
-//        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         return binding.root
-//        return inflater.inflate(R.layout.initial_setting_dialog, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,7 +38,6 @@ class InitialSettingDialog : DialogFragment() {
         language = local?.language
         binding.btnOk.setOnClickListener {
             if (binding.radioGroup.checkedRadioButtonId == R.id.radio_gps) {
-//                getFreshLocation()
                 viewModel.getFreshLocation()
             } else if (binding.radioGroup.checkedRadioButtonId == R.id.radio_maps) {
                 saveIsMapInSharedPreferences()
@@ -50,6 +47,19 @@ class InitialSettingDialog : DialogFragment() {
         viewModel.observeLocation().observe(viewLifecycleOwner) {
             if (it[0] != 0.0 && it[1] != 0.0) {
                 saveLocationInSharedPreferences(it[0], it[1])
+            }
+        }
+
+        viewModel.observePermission().observe(viewLifecycleOwner) {
+            if (it == "denied") {
+                getSharedPreferences(this.requireContext()).edit().apply {
+                    putBoolean("firstTime", false)
+                    putString(getString(R.string.languageSetting), language)
+                    putString(getString(R.string.unitsSetting), "metric")
+                    apply()
+                }
+                dialog!!.dismiss()
+                startMainActivity()
             }
         }
     }
@@ -103,5 +113,4 @@ class InitialSettingDialog : DialogFragment() {
             false
         })
     }
-
 }

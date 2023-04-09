@@ -1,11 +1,15 @@
 package com.iti.weatherwatch.home.view
 
+import android.Manifest
+import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.net.ConnectivityManager
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.*
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,9 +20,9 @@ import com.iti.weatherwatch.broadcastreceiver.ConnectivityReceiver
 import com.iti.weatherwatch.databinding.FragmentHomeBinding
 import com.iti.weatherwatch.datasource.MyLocationProvider
 import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.datasource.model.*
 import com.iti.weatherwatch.home.viewmodel.HomeViewModel
 import com.iti.weatherwatch.home.viewmodel.HomeViewModelFactory
-import com.iti.weatherwatch.model.*
 import com.iti.weatherwatch.util.*
 import java.util.*
 
@@ -81,16 +85,13 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
                     if (location.checkPermission() && location.isLocationEnabled()) {
                         viewModel.getFreshLocation()
                     } else {
+                        binding.homeView.visibility = View.GONE
                         binding.cardLocation.visibility = View.VISIBLE
                         if (!location.checkPermission()) {
                             binding.textDialog.text = getString(R.string.location_permission)
                         } else if (!location.isLocationEnabled()) {
                             binding.textDialog.text = getString(R.string.location_enabled)
                         }
-                        binding.btnEnable.setOnClickListener {
-                            viewModel.getFreshLocation()
-                        }
-                    }
 
                     viewModel.observeLocation().observe(viewLifecycleOwner) {
                         if (it[0] != 0.0 && it[1] != 0.0) {
@@ -110,6 +111,18 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
                                 language,
                                 units
                             )
+                        binding.btnEnable.setOnClickListener {
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                                    requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION
+                                )) {
+                                viewModel.getFreshLocation()
+                            } else {
+                                val intent = Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.parse("package:" + requireContext().applicationContext.packageName)
+                                )
+                                startActivity(intent)
+                            }
                         }
                     }
                 }
@@ -138,6 +151,7 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
             fetchTempPerTimeRecycler(it.hourly as ArrayList<Hourly>, temperatureUnit)
             fetchTempPerDayRecycler(it.daily as ArrayList<Daily>, temperatureUnit)
         }
+    }
 
         binding.btnSetting.setOnClickListener {
             Navigation.findNavController(view)
@@ -189,14 +203,9 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
             textCurrentDay.text = convertCalenderToDayString(Calendar.getInstance(), language)
             textCurrentDate.text =
                 convertLongToDayDate(Calendar.getInstance().timeInMillis, language)
-            textCurrentTempreture.text = model.current.temp.toString().plus(temperatureUnit)
             textTempDescription.text = weather.description
-            textHumidity.text = model.current.humidity.toString().plus("%")
-            textPressure.text = model.current.pressure.toString().plus(" hPa")
-            textWindSpeed.text = model.current.windSpeed.toString().plus(windSpeedUnit)
             textCity.text = getCityText(requireContext(), model.lat, model.lon, language)
         }
-//        binding.textCity.text = model.timezone
     }
 
     override fun onDestroyView() {
@@ -223,26 +232,28 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
         getSharedPreferences(requireContext()).apply {
             latitude = getFloat(getString(R.string.lat), 0.0f).toDouble()
             longitude = getFloat(getString(R.string.lon), 0.0f).toDouble()
-            language = getString(getString(R.string.languageSetting), "en") ?: "en"
-            units = getString(getString(R.string.unitsSetting), "metric") ?: "metric"
+            language = getString(getString(R.string.languageSetting), "en")!!
+            units = getString(getString(R.string.unitsSetting), "metric")!!
         }
     }
 
     override fun onNetworkConnectionChanged(isConnected: Boolean) {
-        if (isConnected) {
-            if (flagNoConnection) {
-                val snackBar = Snackbar.make(binding.root, "Back Online", Snackbar.LENGTH_SHORT)
-                snackBar.view.setBackgroundColor(Color.GREEN)
+        if (_binding != null) {
+            if (isConnected) {
+                if (flagNoConnection) {
+                    val snackBar = Snackbar.make(binding.root, "Back Online", Snackbar.LENGTH_SHORT)
+                    snackBar.view.setBackgroundColor(Color.GREEN)
+                    snackBar.show()
+                    flagNoConnection = false
+                    refreshFragment()
+                }
+            } else {
+                flagNoConnection = true
+                val snackBar = Snackbar.make(binding.root, "You are offline", Snackbar.LENGTH_LONG)
+                snackBar.view.setBackgroundColor(Color.RED)
                 snackBar.show()
-                flagNoConnection = false
-                refreshFragment()
+                getLocalData()
             }
-        } else {
-            flagNoConnection = true
-            val snackBar = Snackbar.make(binding.root, "You are offline", Snackbar.LENGTH_LONG)
-            snackBar.view.setBackgroundColor(Color.RED)
-            snackBar.show()
-            getLocalData()
         }
     }
 
@@ -254,9 +265,7 @@ class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListen
 
     private fun refreshFragment() {
         val ft: FragmentTransaction = requireFragmentManager().beginTransaction()
-        if (Build.VERSION.SDK_INT >= 26) {
-            ft.setReorderingAllowed(false)
-        }
+        ft.setReorderingAllowed(false)
         ft.detach(this).attach(this).commit()
     }
 
