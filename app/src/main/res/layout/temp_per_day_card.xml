@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/primary"
+    android:background="@color/tertiary"
     android:paddingBottom="8dp">
 
     <TextView
@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/image_card_day_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/image_card_day_icon"
-        tools:text="Wed, 15 Mar 2022" />
+        tools:text="Sun, 1 Jan 2023" />
 
     <View
         android:id="@+id/view"
@@ -32,10 +32,11 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginStart="140dp"
+        android:contentDescription="@string/image_content_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/clouds" />
+        tools:srcCompat="@drawable/icon_clouds_high" />
 
     <TextView
         android:id="@+id/text_card_day_temp_description"
@@ -46,7 +47,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/image_card_day_icon"
         app:layout_constraintStart_toEndOf="@+id/image_card_day_icon"
         app:layout_constraintTop_toTopOf="@+id/image_card_day_icon"
-        tools:text="Clear Sky" />
+        tools:text="Cloudy" />
 
     <TextView
         android:id="@+id/text_card_day_temp"
@@ -59,5 +60,5 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/text_card_day_temp_description"
         app:layout_constraintTop_toTopOf="@+id/text_card_day_temp_description"
-        tools:text="32*c" />
+        tools:text="37 °C" />
 </androidx.constraintlayout.widget.ConstraintLayout>

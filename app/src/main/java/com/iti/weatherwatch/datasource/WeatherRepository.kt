@@ -1,15 +1,27 @@
 package com.iti.weatherwatch.datasource
 
 import android.app.Application
+import android.content.Context
 import com.iti.weatherwatch.datasource.local.*
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
+import com.iti.weatherwatch.datasource.model.WeatherAlert
 import com.iti.weatherwatch.datasource.remote.RemoteSource
 import com.iti.weatherwatch.datasource.remote.RetrofitHelper
-import com.iti.weatherwatch.model.OpenWeatherApi
-import com.iti.weatherwatch.model.WeatherAlert
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
+/*
+This class is a WeatherRepository that acts as an intermediate between the app and different data sources, local and remote. It implements the IWeatherRepository interface, which defines a set of methods to interact with the data sources.
+
+The class has a constructor that takes two parameters of types RemoteSource and LocalSource, which are used to specify the remote and local data sources. It also has an optional parameter ioDispatcher of type CoroutineDispatcher to specify the dispatcher for executing asynchronous operations.
+
+The class has two companion object methods named getRepository that returns an instance of the WeatherRepository. The first method takes an Application parameter and the second method takes a Context parameter.
+
+The class implements the methods of the IWeatherRepository interface to perform operations like fetching weather data from remote and local sources, inserting, updating and deleting weather data, and fetching alerts.
+
+The class uses the Retrofit library to make network calls to the remote data source and uses the Room library for the local data source. The class also uses Kotlin coroutines to perform asynchronous operations.
+ */
 class WeatherRepository(
     private val weatherRemoteDataSource: RemoteSource,
     private val weatherLocalDataSource: LocalSource,
@@ -25,6 +37,17 @@ class WeatherRepository(
                 WeatherRepository(
                     RetrofitHelper,
                     RoomLocalClass(WeatherDatabase.getDatabase(app).weatherDao())
+                ).also {
+                    INSTANCE = it
+                }
+            }
+        }
+
+        fun getRepository(context: Context): WeatherRepository {
+            return INSTANCE ?: synchronized(this) {
+                WeatherRepository(
+                    RetrofitHelper,
+                    RoomLocalClass(WeatherDatabase.getDatabase(context).weatherDao())
                 ).also {
                     INSTANCE = it
                 }
@@ -113,8 +136,8 @@ class WeatherRepository(
         }
     }
 
-    override suspend fun insertAlert(alert: WeatherAlert) {
-        weatherLocalDataSource.insertAlert(alert)
+    override suspend fun insertAlert(alert: WeatherAlert): Long {
+        return weatherLocalDataSource.insertAlert(alert)
     }
 
     override fun getAlertsList(): Flow<List<WeatherAlert>> {
@@ -124,4 +147,9 @@ class WeatherRepository(
     override suspend fun deleteAlert(id: Int) {
         weatherLocalDataSource.deleteAlert(id)
     }
+
+    override fun getAlert(id: Int): WeatherAlert {
+        return weatherLocalDataSource.getAlert(id)
+    }
+
 }

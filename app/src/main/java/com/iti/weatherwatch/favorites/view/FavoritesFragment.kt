@@ -11,10 +11,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.iti.weatherwatch.R
 import com.iti.weatherwatch.databinding.FragmentFavoritesBinding
 import com.iti.weatherwatch.datasource.WeatherRepository
+import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModel
 import com.iti.weatherwatch.favorites.viewmodel.FavoritesViewModelFactory
-import com.iti.weatherwatch.model.OpenWeatherApi
 
+/*
+The FavoritesFragment class represents a fragment that displays a list of favorite locations with their current weather information. The class inflates the FragmentFavoritesBinding layout and initializes the FavoritesViewModel using FavoritesViewModelFactory. It also initializes a FavoriteAdapter instance, which is used to populate the list of favorite locations.
+
+The onViewCreated method of the class is responsible for initializing the RecyclerView, fetching the list of favorite locations using viewModel.getFavorites(), and observing changes to the list using the favorites property of the FavoritesViewModel. The floatingActionButton on the screen is used to navigate to the MapsFragment to add a new favorite location.
+
+The fetchFavoritesRecycler method is responsible for updating the FavoriteAdapter with the latest list of favorite locations, and the initFavoritesRecyclerView method is used to initialize the RecyclerView with the appropriate layout manager and adapter.
+
+Finally, the handleBackButton method is responsible for handling the back button press on the device, by navigating to the HomeFragment using the NavController.
+ */
 class FavoritesFragment : Fragment() {
 
     private var _binding: FragmentFavoritesBinding? = null
@@ -52,7 +61,9 @@ class FavoritesFragment : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             viewModel.favorites.collect {
-                if (!it.isNullOrEmpty()) {
+                if (it.isNullOrEmpty()) {
+                    binding.textEmptyList.visibility = View.VISIBLE
+                } else {
                     binding.textEmptyList.visibility = View.GONE
                 }
                 fetchFavoritesRecycler(it)

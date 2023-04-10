@@ -4,17 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@color/white">
+    android:backgroundTint="@color/primary">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/alertCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
         android:layout_marginBottom="4dp"
-        app:cardBackgroundColor="@color/primary"
+        app:cardBackgroundColor="@color/secondary"
         app:cardCornerRadius="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -50,6 +48,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
+                android:contentDescription="@string/image_content_description"
                 app:layout_constraintBottom_toBottomOf="@+id/to"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/from"
@@ -72,12 +71,10 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                tools:text="TextView"
                 app:layout_constraintBottom_toBottomOf="@+id/to"
                 app:layout_constraintStart_toStartOf="@+id/text_from"
-                app:layout_constraintTop_toTopOf="@+id/to" />
-
-
+                app:layout_constraintTop_toTopOf="@+id/to"
+                tools:text="TextView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
