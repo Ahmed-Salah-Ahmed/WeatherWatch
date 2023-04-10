@@ -6,6 +6,21 @@ import com.iti.weatherwatch.datasource.model.OpenWeatherApi
 import com.iti.weatherwatch.datasource.model.WeatherAlert
 import kotlinx.coroutines.flow.Flow
 
+/*
+This is an interface called WeatherDao, which represents the data access object (DAO) for the weather and alert data in the local database. It contains several functions that define the database operations that can be performed on the data. Here is a summary of what each function does:
+
+getCurrentWeather(): retrieves the current weather data that is not marked as a favorite.
+insertWeather(weather: OpenWeatherApi): inserts weather data into the database, replacing existing data if there is a conflict.
+updateWeather(weather: OpenWeatherApi): updates existing weather data in the database.
+deleteCurrentWeather(): deletes all current weather data that is not marked as a favorite.
+getFavoritesWeather(): retrieves all weather data that is marked as a favorite.
+deleteFavoriteWeather(id: Int): deletes a single weather data record that is marked as a favorite, specified by its ID.
+getFavoriteWeather(id: Int): retrieves a single weather data record that is marked as a favorite, specified by its ID.
+insertAlert(alert: WeatherAlert): inserts an alert data record into the database, replacing existing data if there is a conflict.
+getAlertsList(): retrieves a list of all alert data records in the database.
+deleteAlert(id: Int): deletes a single alert data record from the database, specified by its ID.
+getAlert(id: Int): retrieves a single alert data record from the database, specified by its ID.
+ */
 @Dao
 interface WeatherDao {
     @Query("select * from weather where isFavorite = 0")

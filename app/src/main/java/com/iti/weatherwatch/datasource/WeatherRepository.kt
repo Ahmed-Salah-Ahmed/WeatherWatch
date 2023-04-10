@@ -11,6 +11,17 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
+/*
+This class is a WeatherRepository that acts as an intermediate between the app and different data sources, local and remote. It implements the IWeatherRepository interface, which defines a set of methods to interact with the data sources.
+
+The class has a constructor that takes two parameters of types RemoteSource and LocalSource, which are used to specify the remote and local data sources. It also has an optional parameter ioDispatcher of type CoroutineDispatcher to specify the dispatcher for executing asynchronous operations.
+
+The class has two companion object methods named getRepository that returns an instance of the WeatherRepository. The first method takes an Application parameter and the second method takes a Context parameter.
+
+The class implements the methods of the IWeatherRepository interface to perform operations like fetching weather data from remote and local sources, inserting, updating and deleting weather data, and fetching alerts.
+
+The class uses the Retrofit library to make network calls to the remote data source and uses the Room library for the local data source. The class also uses Kotlin coroutines to perform asynchronous operations.
+ */
 class WeatherRepository(
     private val weatherRemoteDataSource: RemoteSource,
     private val weatherLocalDataSource: LocalSource,

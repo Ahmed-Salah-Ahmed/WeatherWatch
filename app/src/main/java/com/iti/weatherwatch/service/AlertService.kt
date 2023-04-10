@@ -14,6 +14,15 @@ import com.iti.weatherwatch.ui.MainActivity
 import com.iti.weatherwatch.util.getIcon
 import com.iti.weatherwatch.workmanager.AlertWindowManger
 
+/*
+This is a Kotlin file that defines an Android service called AlertService. The service starts a foreground notification that displays weather information and creates a window that overlays on top of other apps. It also sets the vibration, sound, and lights for the notification.
+
+The AlertService class extends the Service class, which is a base class for Android services. The onStartCommand method is called when the service is started. It receives an Intent object that contains the weather information, including the description and icon. The method creates a notification channel and starts the foreground notification using the makeNotification method. If the app has permission to draw overlays, the method also starts a window work manager.
+
+The makeNotification method creates a notification using the NotificationCompat.Builder class. It sets the small and large icon, title, description, and vibration, sound, and lights for the notification.
+
+The notificationChannel method creates a notification channel that specifies the name, description, and importance of the notification. It also sets the sound and vibration attributes for the channel.
+ */
 class AlertService : Service() {
 
     private val CHANNEL_ID = 14

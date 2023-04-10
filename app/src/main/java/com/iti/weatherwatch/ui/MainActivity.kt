@@ -17,6 +17,17 @@ import com.iti.weatherwatch.util.getCurrentLocale
 import com.iti.weatherwatch.util.getSharedPreferences
 import java.util.*
 
+/*
+This is the implementation of the MainActivity class in an Android application. This class extends AppCompatActivity and provides the main UI for the Weather Watch application.
+
+In the onCreate method, the language is set based on the user's preference stored in shared preferences, and the ActivityMainBinding object is inflated and set as the content view for the activity. The bottom navigation view is also initialized with the navigation controller, and a listener is added to hide the navigation view when navigating to certain destinations.
+
+The setLocale method sets the locale for the app, based on the selected language. It updates the configuration object to reflect the new locale and updates the resources to use the updated configuration.
+
+The onBackPressed method checks if the current destination is the home screen and finishes the activity if it is. Otherwise, the default behavior of onBackPressed is called.
+
+Overall, this class provides the main UI for the Weather Watch app and sets the locale based on the user's preference.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

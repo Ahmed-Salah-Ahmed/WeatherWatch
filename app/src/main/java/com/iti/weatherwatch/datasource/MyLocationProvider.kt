@@ -14,6 +14,23 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.location.*
 
+/*
+This is a class called MyLocationProvider which is responsible for providing the user's current location. It requires a Fragment object to be passed in the constructor. It has the following methods:
+
+    checkPermission() method which checks if the user has granted location permission or not.
+    requestPermission() method which requests the user for location permission.
+    isLocationEnabled() method which checks if the user's device location is enabled or not.
+    getFreshLocation() method which gets the user's current location and updates it in the MutableLiveData object.
+    locationCallback is a private object which is used to get the user's current location in getFreshLocation() method.
+    _locationList is a private MutableLiveData object which holds the user's current location.
+    locationList is a public LiveData object that can be observed to get the user's current location.
+    _denyPermission is a private MutableLiveData object which is used to inform the user when the location permission is denied.
+    denyPermission is a public LiveData object that can be observed to know when the location permission is denied.
+    enableLocationSetting() method which opens the device's location settings page.
+    stopLocationUpdates() method which stops the location updates when the user's location is obtained.
+    myLocationList is a private ArrayList object that holds the latitude and longitude values of the user's current location.
+    fusedLocationProviderClient is a private FusedLocationProviderClient object which is used to get the user's current location.
+ */
 class MyLocationProvider(private val fragment: Fragment) {
     private var myLocationList = ArrayList<Double>()
     private var fusedLocationProviderClient =

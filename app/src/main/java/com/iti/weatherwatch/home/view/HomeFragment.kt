@@ -26,6 +26,25 @@ import com.iti.weatherwatch.home.viewmodel.HomeViewModelFactory
 import com.iti.weatherwatch.util.*
 import java.util.*
 
+/*
+This class is the implementation of the HomeFragment in the WeatherWatch app. It is a subclass of the Fragment class and is responsible for displaying the main view of the app, including the weather forecast for the user's current location, as well as handling various events, such as network connectivity changes and user interactions.
+
+The class also includes the onCreateView(), onResume(), onViewCreated() methods, which are lifecycle methods of a fragment in Android. In the onCreateView() method, the fragment's layout is inflated, and the view is returned.
+
+In the onResume() method, the ConnectivityReceiverListener is set to the class instance to listen to changes in network connectivity.
+
+In the onViewCreated() method, various views and adapters are initialized, and the current location is obtained to display weather information. This method also observes changes in location and weather data and updates the UI accordingly.
+
+This class has a number of properties and methods for initializing and interacting with views and data. Some of the notable properties include:
+
+    tempPerDayAdapter and tempPerTimeAdapter are instances of TempPerDayAdapter and TempPerTimeAdapter, respectively, which are adapters used to display data in RecyclerViews.
+    windSpeedUnit and temperatureUnit are strings representing the current wind speed and temperature units of the weather data being displayed.
+    latitude, longitude, language, and units are properties that hold data relevant to the current location and weather data being displayed.
+    flagNoConnection is a boolean flag that indicates whether there is currently a network connection.
+    viewModel is an instance of HomeViewModel, which is responsible for managing the data displayed in the fragment view.
+
+Overall, this class represents the functionality of the home screen of a weather app and includes methods for displaying weather data and handling changes in network connectivity.
+ */
 class HomeFragment : Fragment(), ConnectivityReceiver.ConnectivityReceiverListener {
 
     private var _binding: FragmentHomeBinding? = null

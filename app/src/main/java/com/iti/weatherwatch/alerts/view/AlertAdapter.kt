@@ -11,6 +11,20 @@ import com.iti.weatherwatch.databinding.AlertCardBinding
 import com.iti.weatherwatch.datasource.model.WeatherAlert
 import com.iti.weatherwatch.util.*
 
+/*
+This is a Kotlin class called AlertAdapter which is used to display a list of weather alerts using a RecyclerView in an Android app.
+
+The class has two parameters: context and viewModel, which are the context of the calling activity or fragment and the view model used to handle interactions with the data source, respectively.
+
+The class contains a ViewHolder class, which is used to hold the views for each item in the RecyclerView. It also has a property called alertsList which is a list of WeatherAlert objects to be displayed.
+
+The class implements three methods:
+
+onCreateViewHolder() - which creates a new ViewHolder and returns it.
+onBindViewHolder() - which binds the data to the ViewHolder at the specified position.
+getItemCount() - which returns the number of items in the alertsList.
+The onBindViewHolder() method uses the WeatherAlert object at the current position to populate the data for each view in the ViewHolder. It also contains a listener for the delete button, which deletes the selected alert and cancels any associated work with it.
+ */
 class AlertAdapter(private val context: Context, private val viewModel: AlertsViewModel) :
     RecyclerView.Adapter<AlertAdapter.ViewHolder>() {
 

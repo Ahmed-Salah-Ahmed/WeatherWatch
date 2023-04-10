@@ -21,6 +21,23 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+/*
+This is a Kotlin class for an Android app that displays a dialog box for setting up a weather alert. It uses a ViewModel to retrieve the alert information from the database and update it accordingly. The class imports various Android classes, such as DatePickerDialog and TimePickerDialog, and several other classes specific to the app's implementation.
+
+The AlertTimeDialog class extends the DialogFragment class and overrides several of its lifecycle methods. It also defines several helper methods for showing a time picker or date picker dialog box, as well as for setting up and scheduling a work manager for periodic alert notifications.
+
+In the onCreateView method, the dialog window's background is set, and the AlertTimeDialogFragmentBinding object is inflated and returned.
+
+In the onViewCreated method, the ViewModel is initialized, the initial data is set, and the click listeners for the From, To, Save, and Cancel buttons are set. Additionally, the method to set up the work manager is called.
+
+The setPeriodWorkManger method creates a work request for the AlertPeriodicWorkManager class and schedules it for periodic execution using WorkManager.
+
+The setInitialData method initializes the current time and date, sets the model data, and sets the button text.
+
+The showTimePicker method creates a time picker dialog box for setting the alert start and end times.
+
+The showDatePicker method creates a date picker dialog box for setting the alert start and end dates.
+ */
 class AlertTimeDialog : DialogFragment() {
 
     private val viewModel: AlertTimeDialogViewModel by viewModels {

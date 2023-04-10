@@ -10,6 +10,23 @@ import com.iti.weatherwatch.databinding.SettingsFragmentBinding
 import com.iti.weatherwatch.ui.MainActivity
 import com.iti.weatherwatch.util.getSharedPreferences
 
+/*
+This is a Kotlin class that represents a settings screen for an Android weather app. The class extends the Fragment class and overrides some of its methods to handle the fragment's lifecycle. The class uses data binding to bind UI elements in the XML layout file to properties in the class. The class also makes use of shared preferences to persist settings data between sessions.
+
+The onCreateView method inflates the XML layout file for the fragment and returns its root view. The onViewCreated method is called after the view has been created and initialized, and sets up event handlers for the "Save" and "Back" buttons in the fragment.
+
+The getUnitSettings, getLanguagesSettings, and getLocationSettings methods retrieve the user's selected settings from the appropriate radio buttons in the UI.
+
+The setSettings method retrieves the user's previous settings from shared preferences and sets the appropriate radio buttons in the UI to reflect those settings.
+
+The getSettingsFromSharedPreferences and setSettingsToSharedPreferences methods retrieve and save the user's settings to shared preferences.
+
+The resetLocationData method is used to reset location-related data in shared preferences when the user changes their location setting from "Use Current Location" to "Enter Location Manually".
+
+The handleBackButton method sets up a listener to handle the back button being pressed on the device. If the back button is pressed, the method calls backToHomeScreen, which finishes the current activity and returns the user to the home screen.
+
+The changeMapLocationDialog method displays a dialog to the user asking if they want to reset location data when changing the location setting from "Use Current Location" to "Enter Location Manually". If the user chooses to reset location data, the method calls resetLocationData and then setSettingsToSharedPreferences. If the user chooses not to reset location data, the method calls setSettingsToSharedPreferences. In both cases, the method calls backToHomeScreen to return the user to the home screen.
+ */
 class SettingsFragment : Fragment() {
 
     private var _binding: SettingsFragmentBinding? = null

@@ -11,6 +11,24 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+/*
+This is a Kotlin file with utility functions for the "Weather Watch" app. The file contains functions to perform tasks such as getting an icon corresponding to a given weather condition, converting dates and times to the appropriate format, and checking if the device is connected to the internet. The functions in this file are called by various parts of the "Weather Watch" app, so it can be considered a helper file for the app.
+
+The class contains the following functions:
+
+    getIcon: This function takes a string as input (which represents a weather condition) and returns the corresponding icon as an integer.
+    convertLongToTime: This function takes a Unix timestamp as input and returns a string representation of the time in 12-hour format (e.g. 3:30 PM).
+    convertCalenderToDayString: This function takes a Calendar object as input and returns a string representation of the day of the week (e.g. Monday).
+    convertLongToDayDate: This function takes a Unix timestamp as input and returns a string representation of the date (e.g. April 10, 2023).
+    getSharedPreferences: This function takes a context as input and returns a SharedPreferences object for the app.
+    isSharedPreferencesLocationAndTimeZoneNull: This function checks if the location and time zone fields in the app's SharedPreferences are null or empty and returns a boolean.
+    isSharedPreferencesLatAndLongNull: This function checks if the latitude and longitude fields in the app's SharedPreferences are null or zero and returns a boolean.
+    updateSharedPreferences: This function updates the latitude, longitude, location, and time zone fields in the app's SharedPreferences.
+    isOnline: This function checks if the device is connected to the internet and returns a boolean.
+    getCurrentLocale: This function returns the current locale of the device.
+    getCityText: This function takes a latitude, longitude, and language as input and returns the name of the city corresponding to the given coordinates.
+    convertNumbersToArabic: This function takes a number as input and returns a string representation of the number in Arabic numerals.
+*/
 fun getIcon(imageString: String): Int {
     val imageInInteger: Int
     when (imageString) {

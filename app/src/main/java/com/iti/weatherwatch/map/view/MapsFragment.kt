@@ -25,6 +25,19 @@ import com.iti.weatherwatch.map.viewmodel.MapViewModel
 import com.iti.weatherwatch.map.viewmodel.MapViewModelFactory
 import com.iti.weatherwatch.util.getSharedPreferences
 
+/*
+This is a Kotlin class that implements a map screen. It displays a map using the Google Maps API and allows the user to search for a location and move the marker to a new location on the map. The user can save this new location as a favorite or use it as a one-time location.
+
+The class extends the Fragment class, and it overrides its onCreateView and onViewCreated methods. The onCreateView method inflates the fragment's layout file and returns the root view. The onViewCreated method initializes the view and sets the event listeners.
+
+The class has several properties, including a lat and lon property that store the current location's latitude and longitude, and a binding property that is a reference to the fragment's binding object.
+
+The class also has a view model property that is created using the MapViewModelFactory class, which is responsible for creating a new instance of the MapViewModel class. The MapViewModel is responsible for retrieving and updating the weather data.
+
+The class uses the Google Maps API to display the map, and it sets up a callback that is called when the map is ready to be used. In the callback, the class sets up the map's initial state and registers the event listeners for the map.
+
+The class also sets up a SearchView widget that allows the user to search for a location by entering a text query. The class uses the Geocoder class to convert the text query to a location, and it displays the location on the map as a marker.
+ */
 class MapsFragment : Fragment() {
 
     private var lat = 30.0

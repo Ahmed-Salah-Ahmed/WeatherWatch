@@ -14,6 +14,23 @@ import com.iti.weatherwatch.ui.MainActivity
 import com.iti.weatherwatch.util.getCurrentLocale
 import com.iti.weatherwatch.util.getSharedPreferences
 
+/*
+This class is a dialog fragment that displays an initial setting dialog to the user. It extends the DialogFragment class, which provides a basic dialog fragment implementation that can be customized by developers.
+
+The class has a view model variable, which is responsible for fetching the user's location, handling permissions, and saving user settings. It also has a binding variable, which is used to inflate the layout of the dialog.
+
+The onCreateView() method sets the dialog's background and inflates its layout using the InitialSettingDialogBinding.
+
+The onViewCreated() method handles the user's input when they click the Ok button. If the user selects the GPS option, the method calls the view model's getFreshLocation() method to fetch the user's current location. If the user selects the Maps option, the method saves the user's preference to the shared preferences.
+
+The onStart() method sets the dialog's size and prevents it from being dismissed when the user touches outside of it.
+
+The class has three private helper methods: saveLocationInSharedPreferences(), saveIsMapInSharedPreferences(), and startMainActivity(). These methods save user preferences to the shared preferences and start the main activity after saving the preferences.
+
+The handleBackButton() method
+
+ handles the back button event to prevent the user from dismissing the dialog by pressing the back button.
+ */
 class InitialSettingDialog : DialogFragment() {
     private var language: String? = null
     private val viewModel: DialogViewModel by viewModels {

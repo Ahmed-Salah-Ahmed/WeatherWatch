@@ -19,6 +19,25 @@ import com.iti.weatherwatch.home.view.*
 import com.iti.weatherwatch.util.*
 import java.util.*
 
+/*
+This is a Kotlin class in an Android app, specifically a Fragment that displays the weather information for a favorite location.
+
+The imports at the top of the file import necessary classes from various packages in the app, including those for handling UI elements, navigation, data storage, and weather data.
+
+The DisplayFavoriteWeather class extends the Fragment class, indicating that it is a UI component of the app that can be added to an activity to display a portion of the app's user interface. The class contains several properties, including adapters for the recycler views displaying weather data, latitude and longitude coordinates for the location, and units and language settings for the user.
+
+The onCreateView method inflates the layout for the fragment and returns the root view. The onViewCreated method is called after the view is created, and it sets up the UI elements and event handlers for the fragment, including handling navigation to other parts of the app.
+
+The initTimeRecyclerView and initDayRecyclerView methods set up the adapters for the recycler views that display the temperature data by day and by hour.
+
+The setUnitSetting method sets the units for temperature and wind speed based on the language and user settings.
+
+The fetchTempPerDayRecycler and fetchTempPerTimeRecycler methods set the data for the temperature recycler views, based on the daily and hourly temperature data from the OpenWeather API.
+
+The setData method sets the data for the UI elements in the fragment based on the weather data returned by the OpenWeather API.
+
+The handleBackButton method sets up the event handler for the back button, allowing the user to navigate back to the previous screen when the back button is pressed.
+ */
 class DisplayFavoriteWeather : Fragment() {
     private lateinit var tempPerDayAdapter: TempPerDayAdapter
     private lateinit var tempPerTimeAdapter: TempPerTimeAdapter

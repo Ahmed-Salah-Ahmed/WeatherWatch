@@ -9,6 +9,17 @@ import com.iti.weatherwatch.databinding.TempPerTimeCardBinding
 import com.iti.weatherwatch.datasource.model.Hourly
 import com.iti.weatherwatch.util.*
 
+/*
+This code defines a TempPerTimeAdapter class which is a subclass of RecyclerView.Adapter used to populate a RecyclerView with temperature data for each hour.
+
+The TempPerTimeAdapter class has a ViewHolder subclass, an hourly list of type Hourly, and a temperatureUnit string.
+
+The onCreateViewHolder() method inflates the layout file for each item in the RecyclerView.
+
+The onBindViewHolder() method binds the temperature data for each hour to the corresponding item view.
+
+The getItemCount() method returns the size of the hourly list, which is always 24 hours.
+ */
 class TempPerTimeAdapter(private val context: Context) :
     RecyclerView.Adapter<TempPerTimeAdapter.ViewHolder>() {
 
